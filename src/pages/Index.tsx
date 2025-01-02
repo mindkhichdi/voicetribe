@@ -41,7 +41,7 @@ const Index = () => {
             Create your Tribe
           </h1>
           <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-            Record voice notes — ideas, grocery lists, health logs, book highlights, anything.
+            Record Voice notes - ideas, health logs, book notes, lists etc. and Share it with your Tribe
           </p>
         </div>
         
