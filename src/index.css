@@ -10,6 +10,14 @@
     --input: 0 0% 90%;
     --ring: 0 0% 90%;
   }
+
+  .dark {
+    --background: 0 0% 10%;
+    --foreground: 0 0% 98%;
+    --border: 0 0% 20%;
+    --input: 0 0% 20%;
+    --ring: 0 0% 20%;
+  }
 }
  
 @layer base {

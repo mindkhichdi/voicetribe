@@ -1,12 +1,16 @@
 import React, { useState, useRef } from 'react';
-import { Mic, Square, Trash2 } from 'lucide-react';
+import { Mic, Square, Trash2, Play, Pause, RotateCcw, RotateCw } from 'lucide-react';
 import { Button } from './ui/button';
 import { toast } from 'sonner';
+import { Slider } from './ui/slider';
 
 export const VoiceRecorder = () => {
   const [isRecording, setIsRecording] = useState(false);
   const [recordings, setRecordings] = useState<{ blob: Blob; timestamp: Date }[]>([]);
+  const [currentlyPlaying, setCurrentlyPlaying] = useState<number | null>(null);
+  const [playbackSpeed, setPlaybackSpeed] = useState(1);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioPlayerRef = useRef<HTMLAudioElement | null>(null);
   const chunksRef = useRef<Blob[]>([]);
 
   const startRecording = async () => {
@@ -45,14 +49,58 @@ export const VoiceRecorder = () => {
   };
 
   const deleteRecording = (index: number) => {
+    if (currentlyPlaying === index) {
+      stopPlayback();
+    }
     setRecordings(prev => prev.filter((_, i) => i !== index));
     toast.success('Recording deleted');
   };
 
-  const playRecording = (blob: Blob) => {
-    const url = URL.createObjectURL(blob);
-    const audio = new Audio(url);
-    audio.play();
+  const playRecording = (index: number) => {
+    if (currentlyPlaying === index) {
+      stopPlayback();
+      return;
+    }
+
+    const recording = recordings[index];
+    const url = URL.createObjectURL(recording.blob);
+    
+    if (audioPlayerRef.current) {
+      audioPlayerRef.current.src = url;
+      audioPlayerRef.current.playbackRate = playbackSpeed;
+      audioPlayerRef.current.play();
+      setCurrentlyPlaying(index);
+
+      audioPlayerRef.current.onended = () => {
+        setCurrentlyPlaying(null);
+      };
+    } else {
+      const audio = new Audio(url);
+      audio.playbackRate = playbackSpeed;
+      audioPlayerRef.current = audio;
+      audio.play();
+      setCurrentlyPlaying(index);
+
+      audio.onended = () => {
+        setCurrentlyPlaying(null);
+      };
+    }
+  };
+
+  const stopPlayback = () => {
+    if (audioPlayerRef.current) {
+      audioPlayerRef.current.pause();
+      audioPlayerRef.current.currentTime = 0;
+    }
+    setCurrentlyPlaying(null);
+  };
+
+  const handleSpeedChange = (value: number[]) => {
+    const newSpeed = value[0];
+    setPlaybackSpeed(newSpeed);
+    if (audioPlayerRef.current) {
+      audioPlayerRef.current.playbackRate = newSpeed;
+    }
   };
 
   return (
@@ -74,20 +122,63 @@ export const VoiceRecorder = () => {
         </Button>
       </div>
 
+      {recordings.length > 0 && (
+        <div className="mb-6">
+          <p className="text-sm font-medium mb-2">Playback Speed</p>
+          <Slider
+            defaultValue={[1]}
+            max={2}
+            min={0.5}
+            step={0.25}
+            value={[playbackSpeed]}
+            onValueChange={handleSpeedChange}
+            className="w-48 mx-auto"
+          />
+          <div className="text-xs text-center mt-1">{playbackSpeed}x</div>
+        </div>
+      )}
+
       <div className="space-y-4">
         {recordings.map((recording, index) => (
           <div
             key={index}
             className="flex items-center justify-between p-4 bg-secondary rounded-lg"
           >
-            <button
-              onClick={() => playRecording(recording.blob)}
-              className="flex items-center space-x-4 hover:opacity-80 transition-opacity"
-            >
+            <div className="flex items-center space-x-4">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => playRecording(index)}
+                className={currentlyPlaying === index ? 'text-accent' : ''}
+              >
+                {currentlyPlaying === index ? (
+                  <Pause className="w-4 h-4" />
+                ) : (
+                  <Play className="w-4 h-4" />
+                )}
+              </Button>
               <span className="text-sm font-medium">
                 {recording.timestamp.toLocaleTimeString()}
               </span>
-            </button>
+              {currentlyPlaying === index && (
+                <div className="flex items-center space-x-2">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => handleSpeedChange([Math.max(0.5, playbackSpeed - 0.25)])}
+                  >
+                    <RotateCcw className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => handleSpeedChange([Math.min(2, playbackSpeed + 0.25)])}
+                  >
+                    <RotateCw className="w-4 h-4" />
+                  </Button>
+                </div>
+              )}
+            </div>
             <Button
               variant="ghost"
               size="icon"
