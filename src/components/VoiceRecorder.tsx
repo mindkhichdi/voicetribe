@@ -3,15 +3,86 @@ import { Mic, Square, Trash2, Play, Pause, RotateCcw, RotateCw } from 'lucide-re
 import { Button } from './ui/button';
 import { toast } from 'sonner';
 import { Slider } from './ui/slider';
+import { supabase } from '@/integrations/supabase/client';
+import { useSession } from '@supabase/auth-helpers-react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 export const VoiceRecorder = () => {
   const [isRecording, setIsRecording] = useState(false);
-  const [recordings, setRecordings] = useState<{ blob: Blob; timestamp: Date }[]>([]);
   const [currentlyPlaying, setCurrentlyPlaying] = useState<number | null>(null);
   const [playbackSpeed, setPlaybackSpeed] = useState(1);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioPlayerRef = useRef<HTMLAudioElement | null>(null);
   const chunksRef = useRef<Blob[]>([]);
+  const session = useSession();
+  const queryClient = useQueryClient();
+
+  const { data: recordings = [], isLoading } = useQuery({
+    queryKey: ['recordings'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('recordings')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: !!session?.user,
+  });
+
+  const uploadMutation = useMutation({
+    mutationFn: async (blob: Blob) => {
+      const fileName = `${crypto.randomUUID()}.webm`;
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('recordings')
+        .upload(fileName, blob);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('recordings')
+        .getPublicUrl(fileName);
+
+      const { error: dbError } = await supabase
+        .from('recordings')
+        .insert({
+          blob_url: publicUrl,
+          user_id: session!.user.id,
+        });
+
+      if (dbError) throw dbError;
+
+      return publicUrl;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['recordings'] });
+      toast.success('Recording saved successfully');
+    },
+    onError: (error) => {
+      console.error('Error saving recording:', error);
+      toast.error('Failed to save recording');
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: async (recordingId: string) => {
+      const { error } = await supabase
+        .from('recordings')
+        .delete()
+        .eq('id', recordingId);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['recordings'] });
+      toast.success('Recording deleted');
+    },
+    onError: (error) => {
+      console.error('Error deleting recording:', error);
+      toast.error('Failed to delete recording');
+    },
+  });
 
   const startRecording = async () => {
     try {
@@ -24,9 +95,9 @@ export const VoiceRecorder = () => {
         }
       };
 
-      mediaRecorderRef.current.onstop = () => {
+      mediaRecorderRef.current.onstop = async () => {
         const blob = new Blob(chunksRef.current, { type: 'audio/webm' });
-        setRecordings(prev => [...prev, { blob, timestamp: new Date() }]);
+        uploadMutation.mutate(blob);
         chunksRef.current = [];
       };
 
@@ -44,27 +115,15 @@ export const VoiceRecorder = () => {
       mediaRecorderRef.current.stop();
       mediaRecorderRef.current.stream.getTracks().forEach(track => track.stop());
       setIsRecording(false);
-      toast.success('Recording saved');
     }
   };
 
-  const deleteRecording = (index: number) => {
-    if (currentlyPlaying === index) {
-      stopPlayback();
-    }
-    setRecordings(prev => prev.filter((_, i) => i !== index));
-    toast.success('Recording deleted');
-  };
-
-  const playRecording = (index: number) => {
+  const playRecording = (url: string, index: number) => {
     if (currentlyPlaying === index) {
       stopPlayback();
       return;
     }
 
-    const recording = recordings[index];
-    const url = URL.createObjectURL(recording.blob);
-    
     if (audioPlayerRef.current) {
       audioPlayerRef.current.src = url;
       audioPlayerRef.current.playbackRate = playbackSpeed;
@@ -102,6 +161,14 @@ export const VoiceRecorder = () => {
       audioPlayerRef.current.playbackRate = newSpeed;
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full max-w-2xl mx-auto p-6">
@@ -141,7 +208,7 @@ export const VoiceRecorder = () => {
       <div className="space-y-4">
         {recordings.map((recording, index) => (
           <div
-            key={index}
+            key={recording.id}
             className="glass rounded-lg transition-all duration-300 hover:shadow-lg"
           >
             <div className="flex items-center justify-between p-4">
@@ -149,7 +216,7 @@ export const VoiceRecorder = () => {
                 <Button
                   variant="ghost"
                   size="icon"
-                  onClick={() => playRecording(index)}
+                  onClick={() => playRecording(recording.blob_url, index)}
                   className={`hover:bg-primary/10 ${currentlyPlaying === index ? 'text-primary' : ''}`}
                 >
                   {currentlyPlaying === index ? (
@@ -159,7 +226,7 @@ export const VoiceRecorder = () => {
                   )}
                 </Button>
                 <span className="text-sm font-medium">
-                  {recording.timestamp.toLocaleTimeString()}
+                  {new Date(recording.created_at).toLocaleTimeString()}
                 </span>
                 {currentlyPlaying === index && (
                   <div className="flex items-center space-x-2">
@@ -185,7 +252,7 @@ export const VoiceRecorder = () => {
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={() => deleteRecording(index)}
+                onClick={() => deleteMutation.mutate(recording.id)}
                 className="hover:bg-primary/10 hover:text-accent"
               >
                 <Trash2 className="w-4 h-4" />

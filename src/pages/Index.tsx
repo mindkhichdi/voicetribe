@@ -4,11 +4,23 @@ import "@fontsource/inter/400.css";
 import "@fontsource/inter/500.css";
 import { VoiceRecorder } from "@/components/VoiceRecorder";
 import { Button } from "@/components/ui/button";
-import { Moon, Sun, LogIn, UserPlus, Music } from "lucide-react";
+import { Moon, Sun, LogOut, Music } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { useSession } from "@supabase/auth-helpers-react";
+import { toast } from "sonner";
 
 const Index = () => {
   const [isDark, setIsDark] = useState(false);
+  const navigate = useNavigate();
+  const session = useSession();
+
+  useEffect(() => {
+    if (!session) {
+      navigate("/login");
+    }
+  }, [session, navigate]);
 
   useEffect(() => {
     if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
@@ -22,9 +34,16 @@ const Index = () => {
     document.documentElement.classList.toggle('dark');
   };
 
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    toast.success("Signed out successfully");
+    navigate("/login");
+  };
+
+  if (!session) return null;
+
   return (
     <div className="min-h-screen bg-background transition-colors duration-300">
-      {/* Floating Music Icon */}
       <div className="fixed right-8 top-24 z-50 animate-float">
         <div className="glass rounded-full p-4">
           <Music className="h-6 w-6 text-primary" />
@@ -40,20 +59,11 @@ const Index = () => {
             <Button 
               variant="ghost" 
               size="sm" 
-              onClick={() => console.log('Sign in clicked')}
+              onClick={handleSignOut}
               className="hover:bg-primary/10"
             >
-              <LogIn className="mr-2 h-4 w-4" />
-              Sign In
-            </Button>
-            <Button 
-              variant="default" 
-              size="sm" 
-              onClick={() => console.log('Sign up clicked')}
-              className="bg-gradient-to-r from-primary to-secondary hover:opacity-90"
-            >
-              <UserPlus className="mr-2 h-4 w-4" />
-              Sign Up
+              <LogOut className="mr-2 h-4 w-4" />
+              Sign Out
             </Button>
             <Button
               variant="ghost"
@@ -75,16 +85,6 @@ const Index = () => {
           <p className="text-lg text-foreground/80 max-w-2xl mx-auto animate-fade-in">
             Record Voice notes - ideas, health logs, book notes, lists etc. and Share it with your Tribe
           </p>
-          <div className="flex justify-center gap-4 animate-fade-in">
-            <Button 
-              variant="default" 
-              size="lg"
-              onClick={() => console.log('Get Started clicked')}
-              className="bg-gradient-to-r from-primary to-secondary hover:opacity-90 transition-all duration-300"
-            >
-              Get Started
-            </Button>
-          </div>
         </div>
 
         <div className="max-w-4xl mx-auto glass rounded-2xl p-8 shadow-lg animate-fade-in">
