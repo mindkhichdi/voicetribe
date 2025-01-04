@@ -29,16 +29,21 @@ export default {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         primary: {
-          DEFAULT: "#000000",
+          DEFAULT: "#9b87f5",
           foreground: "#FFFFFF",
         },
         secondary: {
-          DEFAULT: "#F5F5F5",
-          foreground: "#000000",
+          DEFAULT: "#7E69AB",
+          foreground: "#FFFFFF",
         },
         accent: {
-          DEFAULT: "#FF4545",
+          DEFAULT: "#6E59A5",
           foreground: "#FFFFFF",
+        },
+        purple: {
+          light: "#E5DEFF",
+          DEFAULT: "#8B5CF6",
+          dark: "#1A1F2C",
         },
       },
       keyframes: {
@@ -50,10 +55,15 @@ export default {
           "0%": { opacity: "0", transform: "translateY(10px)" },
           "100%": { opacity: "1", transform: "translateY(0)" },
         },
+        "float": {
+          "0%, 100%": { transform: "translateY(0)" },
+          "50%": { transform: "translateY(-10px)" },
+        },
       },
       animation: {
         "recording-pulse": "recording-pulse 2s ease-in-out infinite",
         "fade-in": "fade-in 0.5s ease-out forwards",
+        "float": "float 3s ease-in-out infinite",
       },
     },
   },

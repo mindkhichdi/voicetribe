@@ -4,19 +4,19 @@
  
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 0 0% 0%;
-    --border: 0 0% 90%;
-    --input: 0 0% 90%;
-    --ring: 0 0% 90%;
+    --background: 260 40% 98%;
+    --foreground: 260 40% 10%;
+    --border: 260 40% 90%;
+    --input: 260 40% 90%;
+    --ring: 260 40% 90%;
   }
 
   .dark {
-    --background: 0 0% 10%;
-    --foreground: 0 0% 98%;
-    --border: 0 0% 20%;
-    --input: 0 0% 20%;
-    --ring: 0 0% 20%;
+    --background: 260 40% 10%;
+    --foreground: 260 40% 98%;
+    --border: 260 40% 20%;
+    --input: 260 40% 20%;
+    --ring: 260 40% 20%;
   }
 }
  
@@ -26,5 +26,17 @@
   }
   body {
     @apply bg-background text-foreground font-sans;
+    background-image: radial-gradient(
+      circle at center,
+      rgba(155, 135, 245, 0.1) 0%,
+      rgba(155, 135, 245, 0.05) 50%,
+      transparent 100%
+    );
+  }
+}
+
+@layer utilities {
+  .glass {
+    @apply bg-white/30 dark:bg-black/30 backdrop-blur-md border border-white/20 dark:border-white/10;
   }
 }

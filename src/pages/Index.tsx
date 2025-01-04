@@ -4,7 +4,7 @@ import "@fontsource/inter/400.css";
 import "@fontsource/inter/500.css";
 import { VoiceRecorder } from "@/components/VoiceRecorder";
 import { Button } from "@/components/ui/button";
-import { Moon, Sun, LogIn, UserPlus } from "lucide-react";
+import { Moon, Sun, LogIn, UserPlus, Music } from "lucide-react";
 import { useEffect, useState } from "react";
 
 const Index = () => {
@@ -24,15 +24,34 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background transition-colors duration-300">
-      <nav className="fixed top-0 w-full bg-background/80 backdrop-blur-sm border-b z-50">
+      {/* Floating Music Icon */}
+      <div className="fixed right-8 top-24 z-50 animate-float">
+        <div className="glass rounded-full p-4">
+          <Music className="h-6 w-6 text-primary" />
+        </div>
+      </div>
+
+      <nav className="fixed top-0 w-full glass z-50">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <h2 className="font-display text-2xl font-bold">Tribe</h2>
+          <h2 className="font-display text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">
+            VoiceTribe
+          </h2>
           <div className="flex items-center gap-4">
-            <Button variant="ghost" size="sm" onClick={() => console.log('Sign in clicked')}>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={() => console.log('Sign in clicked')}
+              className="hover:bg-primary/10"
+            >
               <LogIn className="mr-2 h-4 w-4" />
               Sign In
             </Button>
-            <Button variant="default" size="sm" onClick={() => console.log('Sign up clicked')}>
+            <Button 
+              variant="default" 
+              size="sm" 
+              onClick={() => console.log('Sign up clicked')}
+              className="bg-gradient-to-r from-primary to-secondary hover:opacity-90"
+            >
               <UserPlus className="mr-2 h-4 w-4" />
               Sign Up
             </Button>
@@ -40,7 +59,7 @@ const Index = () => {
               variant="ghost"
               size="icon"
               onClick={toggleTheme}
-              className="rounded-full"
+              className="rounded-full hover:bg-primary/10"
             >
               {isDark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
             </Button>
@@ -50,10 +69,10 @@ const Index = () => {
 
       <main className="container mx-auto px-4 pt-24 pb-16">
         <div className="text-center mb-16 space-y-6">
-          <h1 className="font-display text-4xl sm:text-5xl md:text-6xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-black to-gray-600 dark:from-white dark:to-gray-400 animate-fade-in">
+          <h1 className="font-display text-4xl sm:text-5xl md:text-6xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary animate-fade-in">
             Create your Tribe
           </h1>
-          <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto animate-fade-in">
+          <p className="text-lg text-foreground/80 max-w-2xl mx-auto animate-fade-in">
             Record Voice notes - ideas, health logs, book notes, lists etc. and Share it with your Tribe
           </p>
           <div className="flex justify-center gap-4 animate-fade-in">
@@ -61,14 +80,14 @@ const Index = () => {
               variant="default" 
               size="lg"
               onClick={() => console.log('Get Started clicked')}
-              className="bg-gradient-to-r from-black to-gray-800 dark:from-white dark:to-gray-200 dark:text-black hover:opacity-90"
+              className="bg-gradient-to-r from-primary to-secondary hover:opacity-90 transition-all duration-300"
             >
               Get Started
             </Button>
           </div>
         </div>
 
-        <div className="max-w-4xl mx-auto bg-secondary/50 dark:bg-secondary/10 rounded-2xl p-8 shadow-lg backdrop-blur-sm animate-fade-in">
+        <div className="max-w-4xl mx-auto glass rounded-2xl p-8 shadow-lg animate-fade-in">
           <VoiceRecorder />
         </div>
 
@@ -92,9 +111,11 @@ const Index = () => {
 };
 
 const FeatureCard = ({ title, description }: { title: string; description: string }) => (
-  <div className="p-6 rounded-xl bg-white dark:bg-gray-800/50 shadow-sm hover:shadow-md transition-shadow">
-    <h3 className="font-display text-xl font-semibold mb-2">{title}</h3>
-    <p className="text-gray-600 dark:text-gray-400">{description}</p>
+  <div className="glass p-6 rounded-xl hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+    <h3 className="font-display text-xl font-semibold mb-2 bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">
+      {title}
+    </h3>
+    <p className="text-foreground/80">{description}</p>
   </div>
 );
 

@@ -108,10 +108,10 @@ export const VoiceRecorder = () => {
       <div className="flex justify-center mb-8">
         <Button
           onClick={isRecording ? stopRecording : startRecording}
-          className={`rounded-full p-8 ${
+          className={`rounded-full p-8 transition-all duration-300 ${
             isRecording 
-              ? 'bg-accent hover:bg-accent/90 animate-recording-pulse' 
-              : 'bg-primary hover:bg-primary/90'
+              ? 'bg-gradient-to-r from-accent to-primary animate-recording-pulse' 
+              : 'bg-gradient-to-r from-primary to-secondary hover:opacity-90'
           }`}
         >
           {isRecording ? (
@@ -123,7 +123,7 @@ export const VoiceRecorder = () => {
       </div>
 
       {recordings.length > 0 && (
-        <div className="mb-6">
+        <div className="mb-6 glass rounded-lg p-4">
           <p className="text-sm font-medium mb-2">Playback Speed</p>
           <Slider
             defaultValue={[1]}
@@ -142,51 +142,55 @@ export const VoiceRecorder = () => {
         {recordings.map((recording, index) => (
           <div
             key={index}
-            className="flex items-center justify-between p-4 bg-secondary rounded-lg"
+            className="glass rounded-lg transition-all duration-300 hover:shadow-lg"
           >
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center justify-between p-4">
+              <div className="flex items-center space-x-4">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => playRecording(index)}
+                  className={`hover:bg-primary/10 ${currentlyPlaying === index ? 'text-primary' : ''}`}
+                >
+                  {currentlyPlaying === index ? (
+                    <Pause className="w-4 h-4" />
+                  ) : (
+                    <Play className="w-4 h-4" />
+                  )}
+                </Button>
+                <span className="text-sm font-medium">
+                  {recording.timestamp.toLocaleTimeString()}
+                </span>
+                {currentlyPlaying === index && (
+                  <div className="flex items-center space-x-2">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleSpeedChange([Math.max(0.5, playbackSpeed - 0.25)])}
+                      className="hover:bg-primary/10"
+                    >
+                      <RotateCcw className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleSpeedChange([Math.min(2, playbackSpeed + 0.25)])}
+                      className="hover:bg-primary/10"
+                    >
+                      <RotateCw className="w-4 h-4" />
+                    </Button>
+                  </div>
+                )}
+              </div>
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={() => playRecording(index)}
-                className={currentlyPlaying === index ? 'text-accent' : ''}
+                onClick={() => deleteRecording(index)}
+                className="hover:bg-primary/10 hover:text-accent"
               >
-                {currentlyPlaying === index ? (
-                  <Pause className="w-4 h-4" />
-                ) : (
-                  <Play className="w-4 h-4" />
-                )}
+                <Trash2 className="w-4 h-4" />
               </Button>
-              <span className="text-sm font-medium">
-                {recording.timestamp.toLocaleTimeString()}
-              </span>
-              {currentlyPlaying === index && (
-                <div className="flex items-center space-x-2">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => handleSpeedChange([Math.max(0.5, playbackSpeed - 0.25)])}
-                  >
-                    <RotateCcw className="w-4 h-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => handleSpeedChange([Math.min(2, playbackSpeed + 0.25)])}
-                  >
-                    <RotateCw className="w-4 h-4" />
-                  </Button>
-                </div>
-              )}
             </div>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => deleteRecording(index)}
-              className="hover:text-accent"
-            >
-              <Trash2 className="w-4 h-4" />
-            </Button>
           </div>
         ))}
       </div>
