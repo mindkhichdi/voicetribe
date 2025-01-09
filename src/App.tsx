@@ -7,6 +7,7 @@ import { SessionContextProvider } from "@supabase/auth-helpers-react";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Landing from "./pages/Landing";
+import Admin from "./pages/Admin";
 import { supabase } from "./integrations/supabase/client";
 
 const queryClient = new QueryClient();
@@ -20,6 +21,7 @@ function App() {
             <Routes>
               <Route path="/landing" element={<Landing />} />
               <Route path="/login" element={<Login />} />
+              <Route path="/admin" element={<Admin />} />
               <Route path="/" element={<Index />} />
               <Route path="*" element={<Navigate to="/landing" replace />} />
             </Routes>
