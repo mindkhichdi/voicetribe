@@ -19,6 +19,7 @@ const Index = () => {
   useEffect(() => {
     if (!session) {
       navigate("/login");
+      return;
     }
   }, [session, navigate]);
 

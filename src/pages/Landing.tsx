@@ -15,6 +15,23 @@ const Landing = () => {
         </div>
       </div>
 
+      <nav className="fixed top-0 w-full glass z-50">
+        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
+          <h2 className="font-display text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">
+            VoiceTribe
+          </h2>
+          {!session && (
+            <Button
+              onClick={() => navigate("/login")}
+              variant="ghost"
+              className="hover:bg-primary/10"
+            >
+              Sign In
+            </Button>
+          )}
+        </div>
+      </nav>
+
       <div className="max-w-4xl w-full text-center space-y-12">
         <h1 className="text-6xl md:text-8xl font-bold font-display mb-8 relative">
           <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/70">
