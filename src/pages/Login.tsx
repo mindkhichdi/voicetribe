@@ -26,8 +26,8 @@ const Login = () => {
         </div>
       </div>
       
-      <div className="w-full max-w-md glass p-8 rounded-xl">
-        <h2 className="font-display text-2xl font-bold text-center mb-8 bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">
+      <div className="w-full max-w-md glass p-8 rounded-xl retro-border retro-shadow">
+        <h2 className="font-display text-2xl font-bold text-center mb-8 text-primary">
           Welcome to VoiceTribe
         </h2>
         <Auth
@@ -37,10 +37,15 @@ const Login = () => {
             variables: {
               default: {
                 colors: {
-                  brand: 'rgb(var(--primary))',
-                  brandAccent: 'rgb(var(--secondary))',
+                  brand: '#CAFE33',
+                  brandAccent: '#a5cb29',
+                  brandButtonText: '#000000',
                 },
               },
+            },
+            className: {
+              button: 'retro-border hover:retro-shadow transition-all duration-300',
+              input: 'retro-border focus:ring-2 ring-primary',
             },
           }}
           providers={[]}

@@ -20,6 +20,7 @@ export default {
     extend: {
       fontFamily: {
         display: ["Playfair Display", "serif"],
+        mono: ["Space Mono", "monospace"],
         sans: ["Inter", "sans-serif"],
       },
       colors: {
@@ -29,21 +30,16 @@ export default {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         primary: {
-          DEFAULT: "#9b87f5",
-          foreground: "#FFFFFF",
+          DEFAULT: "#CAFE33",
+          foreground: "#000000",
         },
         secondary: {
-          DEFAULT: "#7E69AB",
+          DEFAULT: "#222222",
           foreground: "#FFFFFF",
         },
         accent: {
-          DEFAULT: "#6E59A5",
-          foreground: "#FFFFFF",
-        },
-        purple: {
-          light: "#E5DEFF",
-          DEFAULT: "#8B5CF6",
-          dark: "#1A1F2C",
+          DEFAULT: "#CAFE33",
+          foreground: "#000000",
         },
       },
       keyframes: {
@@ -59,11 +55,16 @@ export default {
           "0%, 100%": { transform: "translateY(0)" },
           "50%": { transform: "translateY(-10px)" },
         },
+        "typewriter": {
+          "from": { width: "0" },
+          "to": { width: "100%" },
+        },
       },
       animation: {
         "recording-pulse": "recording-pulse 2s ease-in-out infinite",
         "fade-in": "fade-in 0.5s ease-out forwards",
         "float": "float 3s ease-in-out infinite",
+        "typewriter": "typewriter 2s steps(40, end)",
       },
     },
   },
