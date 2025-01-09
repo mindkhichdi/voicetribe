@@ -36,7 +36,7 @@ const Landing = () => {
             </Button>
           ) : (
             <Button
-              onClick={() => navigate("/")}
+              onClick={() => navigate("/dashboard")}
               className="retro-border retro-shadow transform hover:-translate-y-1 transition-transform px-8 py-6 text-lg"
             >
               Go to Dashboard

@@ -22,7 +22,8 @@ function App() {
               <Route path="/landing" element={<Landing />} />
               <Route path="/login" element={<Login />} />
               <Route path="/admin" element={<Admin />} />
-              <Route path="/" element={<Index />} />
+              <Route path="/dashboard" element={<Index />} />
+              <Route path="/" element={<Navigate to="/landing" replace />} />
               <Route path="*" element={<Navigate to="/landing" replace />} />
             </Routes>
             <Toaster />
