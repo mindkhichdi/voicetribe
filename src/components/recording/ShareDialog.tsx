@@ -21,6 +21,7 @@ interface ShareDialogProps {
 export const ShareDialog = ({ recordingId }: ShareDialogProps) => {
   const [shareEmail, setShareEmail] = useState('');
   const [isSharing, setIsSharing] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
   const session = useSession();
 
   const handleShare = async () => {
@@ -45,17 +46,26 @@ export const ShareDialog = ({ recordingId }: ShareDialogProps) => {
         email: shareEmail,
         options: {
           emailRedirectTo: `${window.location.origin}/dashboard`,
+          data: {
+            recordingId,
+            action: 'share',
+          }
         },
       });
 
       if (signInError) {
         console.error('Error sending magic link:', signInError);
-        toast.error('Failed to send invitation');
+        if (signInError.message.includes('otp_expired')) {
+          toast.error('The previous invitation has expired. A new one has been sent.');
+        } else {
+          toast.error('Failed to send invitation. Please try again.');
+        }
         return;
       }
 
       toast.success('Invitation sent successfully');
       setShareEmail('');
+      setIsOpen(false);
     } catch (error) {
       console.error('Error sharing recording:', error);
       toast.error('Failed to share recording');
@@ -65,7 +75,7 @@ export const ShareDialog = ({ recordingId }: ShareDialogProps) => {
   };
 
   return (
-    <Dialog>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button
           variant="ghost"
