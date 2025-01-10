@@ -44,13 +44,7 @@ export const RecordingItem = ({
   const handleShare = async () => {
     try {
       setIsSharing(true);
-      
-      // Get user profile for sender name
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('username')
-        .eq('id', session?.user?.id)
-        .single();
+      console.log('Starting share process for recording:', recording.id);
 
       // First create the shared recording entry
       const { error: shareError } = await supabase
@@ -70,10 +64,7 @@ export const RecordingItem = ({
       const { error: signInError } = await supabase.auth.signInWithOtp({
         email: shareEmail,
         options: {
-          data: {
-            recording_id: recording.id,
-            shared_by: profile?.username || 'Someone',
-          },
+          emailRedirectTo: `${window.location.origin}/dashboard`,
         },
       });
 
@@ -148,7 +139,7 @@ export const RecordingItem = ({
               <DialogHeader>
                 <DialogTitle>Share Recording</DialogTitle>
                 <DialogDescription>
-                  Enter an email address to invite someone to listen to your recording.
+                  Enter an email address to share this recording.
                 </DialogDescription>
               </DialogHeader>
               <div className="space-y-4 mt-4">
