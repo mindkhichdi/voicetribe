@@ -52,31 +52,33 @@ export const RecordingItem = ({
         .eq('id', session?.user?.id)
         .single();
 
-      // Share recording first
+      // First create the shared recording entry
       const { error: shareError } = await supabase
         .from('shared_recordings')
         .insert({
           recording_id: recording.id,
-          shared_with_id: null, // Will be updated when user signs up
           shared_by_id: session?.user?.id,
         });
 
       if (shareError) {
-        console.error('Error sharing recording:', shareError);
+        console.error('Error creating share:', shareError);
         toast.error('Failed to share recording');
         return;
       }
 
-      // Invite user using Supabase's built-in functionality
-      const { error: inviteError } = await supabase.auth.admin.inviteUserByEmail(shareEmail, {
-        data: {
-          recording_id: recording.id,
-          shared_by: profile?.username || 'Someone',
+      // Send magic link email
+      const { error: signInError } = await supabase.auth.signInWithOtp({
+        email: shareEmail,
+        options: {
+          data: {
+            recording_id: recording.id,
+            shared_by: profile?.username || 'Someone',
+          },
         },
       });
 
-      if (inviteError) {
-        console.error('Error inviting user:', inviteError);
+      if (signInError) {
+        console.error('Error sending magic link:', signInError);
         toast.error('Failed to send invitation');
         return;
       }
