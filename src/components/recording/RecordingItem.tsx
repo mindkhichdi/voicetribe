@@ -11,6 +11,7 @@ import {
 import { Input } from '../ui/input';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
+import { useSession } from '@supabase/auth-helpers-react';
 
 interface RecordingItemProps {
   recording: {
@@ -37,20 +38,33 @@ export const RecordingItem = ({
 }: RecordingItemProps) => {
   const [shareEmail, setShareEmail] = React.useState('');
   const [isSharing, setIsSharing] = React.useState(false);
+  const session = useSession();
 
   const handleShare = async () => {
     try {
       setIsSharing(true);
       
-      // Get user by email
-      const { data: users, error: userError } = await supabase
+      // Get user profile for sender name
+      const { data: profile } = await supabase
         .from('profiles')
-        .select('id')
-        .eq('username', shareEmail.split('@')[0])
+        .select('username')
+        .eq('id', session?.user?.id)
         .single();
 
-      if (userError || !users) {
-        toast.error('User not found');
+      const senderName = profile?.username || 'Someone';
+      
+      // Send invitation email
+      const { error: emailError } = await supabase.functions.invoke('send-invite', {
+        body: {
+          to: shareEmail,
+          recordingId: recording.id,
+          senderName,
+        },
+      });
+
+      if (emailError) {
+        console.error('Error sending invitation:', emailError);
+        toast.error('Failed to send invitation');
         return;
       }
 
@@ -59,20 +73,17 @@ export const RecordingItem = ({
         .from('shared_recordings')
         .insert({
           recording_id: recording.id,
-          shared_with_id: users.id,
-          shared_by_id: (await supabase.auth.getUser()).data.user?.id,
+          shared_with_id: null, // Will be updated when user signs up
+          shared_by_id: session?.user?.id,
         });
 
       if (shareError) {
-        if (shareError.code === '23505') {
-          toast.error('Recording already shared with this user');
-        } else {
-          toast.error('Failed to share recording');
-        }
+        console.error('Error sharing recording:', shareError);
+        toast.error('Failed to share recording');
         return;
       }
 
-      toast.success('Recording shared successfully');
+      toast.success('Invitation sent successfully');
       setShareEmail('');
     } catch (error) {
       console.error('Error sharing recording:', error);
@@ -139,7 +150,8 @@ export const RecordingItem = ({
               </DialogHeader>
               <div className="space-y-4 mt-4">
                 <Input
-                  placeholder="Enter user email"
+                  type="email"
+                  placeholder="Enter email address"
                   value={shareEmail}
                   onChange={(e) => setShareEmail(e.target.value)}
                 />
@@ -148,7 +160,7 @@ export const RecordingItem = ({
                   disabled={isSharing || !shareEmail}
                   className="w-full"
                 >
-                  {isSharing ? 'Sharing...' : 'Share'}
+                  {isSharing ? 'Sending Invitation...' : 'Send Invitation'}
                 </Button>
               </div>
             </DialogContent>
