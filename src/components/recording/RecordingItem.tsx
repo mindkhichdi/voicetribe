@@ -6,6 +6,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from '../ui/input';
@@ -51,24 +52,7 @@ export const RecordingItem = ({
         .eq('id', session?.user?.id)
         .single();
 
-      const senderName = profile?.username || 'Someone';
-      
-      // Send invitation email
-      const { error: emailError } = await supabase.functions.invoke('send-invite', {
-        body: {
-          to: shareEmail,
-          recordingId: recording.id,
-          senderName,
-        },
-      });
-
-      if (emailError) {
-        console.error('Error sending invitation:', emailError);
-        toast.error('Failed to send invitation');
-        return;
-      }
-
-      // Share recording
+      // Share recording first
       const { error: shareError } = await supabase
         .from('shared_recordings')
         .insert({
@@ -80,6 +64,20 @@ export const RecordingItem = ({
       if (shareError) {
         console.error('Error sharing recording:', shareError);
         toast.error('Failed to share recording');
+        return;
+      }
+
+      // Invite user using Supabase's built-in functionality
+      const { error: inviteError } = await supabase.auth.admin.inviteUserByEmail(shareEmail, {
+        data: {
+          recording_id: recording.id,
+          shared_by: profile?.username || 'Someone',
+        },
+      });
+
+      if (inviteError) {
+        console.error('Error inviting user:', inviteError);
+        toast.error('Failed to send invitation');
         return;
       }
 
@@ -147,6 +145,9 @@ export const RecordingItem = ({
             <DialogContent>
               <DialogHeader>
                 <DialogTitle>Share Recording</DialogTitle>
+                <DialogDescription>
+                  Enter an email address to invite someone to listen to your recording.
+                </DialogDescription>
               </DialogHeader>
               <div className="space-y-4 mt-4">
                 <Input
