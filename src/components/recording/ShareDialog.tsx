@@ -29,37 +29,18 @@ export const ShareDialog = ({ recordingId }: ShareDialogProps) => {
       setIsSharing(true);
       console.log('Starting share process for recording:', recordingId);
 
-      const { error: shareError } = await supabase
-        .from('shared_recordings')
-        .insert({
-          recording_id: recordingId,
-          shared_by_id: session?.user?.id,
-        });
-
-      if (shareError) {
-        console.error('Error creating share:', shareError);
-        toast.error('Failed to share recording');
-        return;
-      }
-
-      const { error: signInError } = await supabase.auth.signInWithOtp({
-        email: shareEmail,
-        options: {
-          emailRedirectTo: `${window.location.origin}/dashboard`,
-          data: {
-            recordingId,
-            action: 'share',
-          }
+      // Send invitation email
+      const { error: emailError } = await supabase.functions.invoke('send-invite', {
+        body: {
+          email: shareEmail,
+          recordingId: recordingId,
+          sharedById: session?.user?.id,
         },
       });
 
-      if (signInError) {
-        console.error('Error sending magic link:', signInError);
-        if (signInError.message.includes('otp_expired')) {
-          toast.error('The previous invitation has expired. A new one has been sent.');
-        } else {
-          toast.error('Failed to send invitation. Please try again.');
-        }
+      if (emailError) {
+        console.error('Error sending invitation:', emailError);
+        toast.error('Failed to send invitation');
         return;
       }
 

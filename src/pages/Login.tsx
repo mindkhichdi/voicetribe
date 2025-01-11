@@ -1,54 +1,74 @@
+import { useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Auth } from "@supabase/auth-ui-react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
-import { supabase } from "@/integrations/supabase/client";
-import { useNavigate } from "react-router-dom";
-import { useEffect } from "react";
-import { Music } from "lucide-react";
+import { useSession, useSupabaseClient } from "@supabase/auth-helpers-react";
+import { toast } from "sonner";
 
 const Login = () => {
+  const session = useSession();
+  const supabase = useSupabaseClient();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const recordingId = searchParams.get("recording");
+  const email = searchParams.get("email");
+  const action = searchParams.get("action");
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (session) {
-        navigate("/dashboard");
-      }
-    });
+    const handleSharedRecording = async () => {
+      if (session?.user && recordingId && action === "share") {
+        try {
+          const { error: shareError } = await supabase
+            .from('shared_recordings')
+            .insert({
+              recording_id: recordingId,
+              shared_with_id: session.user.id,
+            });
 
-    return () => subscription.unsubscribe();
-  }, [navigate]);
+          if (shareError) {
+            console.error('Error creating share:', shareError);
+            toast.error('Failed to access shared recording');
+            return;
+          }
+
+          toast.success('Recording shared successfully');
+          navigate('/dashboard');
+        } catch (error) {
+          console.error('Error handling shared recording:', error);
+          toast.error('Failed to process shared recording');
+        }
+      }
+    };
+
+    if (session) {
+      handleSharedRecording();
+      if (!recordingId) {
+        navigate('/dashboard');
+      }
+    }
+  }, [session, navigate, recordingId, action, supabase]);
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
-      <div className="fixed right-8 top-24 z-50 animate-float">
-        <div className="glass rounded-full p-4">
-          <Music className="h-6 w-6 text-primary" />
+      <div className="w-full max-w-md space-y-8">
+        <div className="text-center">
+          <h2 className="text-3xl font-bold tracking-tight">
+            {action === "share" ? "Listen to Shared Recording" : "Welcome Back"}
+          </h2>
+          <p className="mt-2 text-sm text-muted-foreground">
+            {action === "share"
+              ? "Sign in or create an account to listen to the shared recording"
+              : "Sign in to your account"}
+          </p>
         </div>
-      </div>
-      
-      <div className="w-full max-w-md glass p-8 rounded-xl retro-border retro-shadow">
-        <h2 className="font-display text-2xl font-bold text-center mb-8 text-primary">
-          Welcome to VoiceTribe
-        </h2>
+
         <Auth
           supabaseClient={supabase}
-          appearance={{
-            theme: ThemeSupa,
-            variables: {
-              default: {
-                colors: {
-                  brand: '#CAFE33',
-                  brandAccent: '#a5cb29',
-                  brandButtonText: '#000000',
-                },
-              },
-            },
-            className: {
-              button: 'retro-border hover:retro-shadow transition-all duration-300',
-              input: 'retro-border focus:ring-2 ring-primary',
-            },
-          }}
+          appearance={{ theme: ThemeSupa }}
           providers={[]}
+          redirectTo={window.location.href}
+          view={email ? "magic_link" : "sign_in"}
+          defaultEmail={email}
         />
       </div>
     </div>
