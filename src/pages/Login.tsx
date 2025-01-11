@@ -18,6 +18,15 @@ const Login = () => {
     const handleSharedRecording = async () => {
       if (session?.user && recordingId && action === "share") {
         try {
+          // Check if the user signed up with email/password
+          const { data: authData } = await supabase.auth.getUser();
+          const isEmailPasswordUser = authData?.user?.app_metadata?.provider === 'email';
+
+          if (!isEmailPasswordUser) {
+            console.log('User needs to sign up with email/password first');
+            return;
+          }
+
           const { error: shareError } = await supabase
             .from('shared_recordings')
             .insert({
@@ -37,42 +46,13 @@ const Login = () => {
           console.error('Error handling shared recording:', error);
           toast.error('Failed to process shared recording');
         }
-      }
-    };
-
-    // Handle magic link email if provided
-    const handleMagicLink = async () => {
-      if (email && !session) {
-        try {
-          const { error } = await supabase.auth.signInWithOtp({
-            email,
-            options: {
-              emailRedirectTo: window.location.href,
-            },
-          });
-          
-          if (error) {
-            console.error('Error sending magic link:', error);
-            toast.error('Failed to send magic link');
-          } else {
-            toast.success('Check your email for the magic link');
-          }
-        } catch (error) {
-          console.error('Error sending magic link:', error);
-          toast.error('Failed to send magic link');
-        }
-      }
-    };
-
-    if (session) {
-      handleSharedRecording();
-      if (!recordingId) {
+      } else if (session && !recordingId) {
         navigate('/dashboard');
       }
-    } else if (email) {
-      handleMagicLink();
-    }
-  }, [session, navigate, recordingId, action, supabase, email]);
+    };
+
+    handleSharedRecording();
+  }, [session, navigate, recordingId, action, supabase]);
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
@@ -83,7 +63,7 @@ const Login = () => {
           </h2>
           <p className="mt-2 text-sm text-muted-foreground">
             {action === "share"
-              ? "Sign in or create an account to listen to the shared recording"
+              ? "Sign up with email and password to listen to the shared recording"
               : "Sign in to your account"}
           </p>
         </div>
