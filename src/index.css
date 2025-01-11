@@ -41,10 +41,10 @@
     box-shadow: 4px 4px 0 #9b87f5;
   }
   .retro-border {
-    @apply border-2 border-purple-DEFAULT dark:border-purple-light;
+    @apply border-2 border-purple;
   }
   .waveform {
-    @apply h-12 w-full bg-gradient-to-r from-purple-light via-purple-DEFAULT to-purple-vivid opacity-75;
+    @apply h-12 w-full bg-gradient-to-r from-purple-light via-purple to-purple-vivid opacity-75;
     mask-image: url("data:image/svg+xml,%3Csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0,50 Q25,45 50,50 T100,50 T150,50 T200,50' stroke='black' fill='none'/%3E%3C/svg%3E");
     mask-size: cover;
     mask-repeat: repeat-x;
