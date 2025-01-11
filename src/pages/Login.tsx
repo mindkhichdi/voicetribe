@@ -40,13 +40,39 @@ const Login = () => {
       }
     };
 
+    // Handle magic link email if provided
+    const handleMagicLink = async () => {
+      if (email && !session) {
+        try {
+          const { error } = await supabase.auth.signInWithOtp({
+            email,
+            options: {
+              emailRedirectTo: window.location.href,
+            },
+          });
+          
+          if (error) {
+            console.error('Error sending magic link:', error);
+            toast.error('Failed to send magic link');
+          } else {
+            toast.success('Check your email for the magic link');
+          }
+        } catch (error) {
+          console.error('Error sending magic link:', error);
+          toast.error('Failed to send magic link');
+        }
+      }
+    };
+
     if (session) {
       handleSharedRecording();
       if (!recordingId) {
         navigate('/dashboard');
       }
+    } else if (email) {
+      handleMagicLink();
     }
-  }, [session, navigate, recordingId, action, supabase]);
+  }, [session, navigate, recordingId, action, supabase, email]);
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
@@ -68,7 +94,6 @@ const Login = () => {
           providers={[]}
           redirectTo={window.location.href}
           view={email ? "magic_link" : "sign_in"}
-          defaultEmail={email}
         />
       </div>
     </div>
