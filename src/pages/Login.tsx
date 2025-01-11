@@ -93,7 +93,7 @@ const Login = () => {
           appearance={{ theme: ThemeSupa }}
           providers={[]}
           redirectTo={window.location.href}
-          view={email ? "magic_link" : "sign_in"}
+          view={action === "share" ? "sign_up" : "sign_in"}
         />
       </div>
     </div>
