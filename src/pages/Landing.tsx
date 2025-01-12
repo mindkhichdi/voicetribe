@@ -1,11 +1,29 @@
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { useSession } from "@supabase/auth-helpers-react";
+import { useSession, useSupabaseClient } from "@supabase/auth-helpers-react";
 import { Music } from "lucide-react";
+import { toast } from "sonner";
 
 const Landing = () => {
   const navigate = useNavigate();
   const session = useSession();
+  const supabase = useSupabaseClient();
+
+  const handleSignOut = async () => {
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        console.error("Error signing out:", error);
+        toast.error("Failed to sign out");
+        return;
+      }
+      toast.success("Signed out successfully");
+      navigate("/landing");
+    } catch (error) {
+      console.error("Error in handleSignOut:", error);
+      toast.error("Failed to sign out");
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4 relative">
@@ -20,15 +38,34 @@ const Landing = () => {
           <h2 className="font-display text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">
             VoiceTribe
           </h2>
-          {!session && (
-            <Button
-              onClick={() => navigate("/login")}
-              variant="ghost"
-              className="hover:bg-primary/10"
-            >
-              Sign In
-            </Button>
-          )}
+          <div className="flex gap-4">
+            {!session ? (
+              <Button
+                onClick={() => navigate("/login")}
+                variant="ghost"
+                className="hover:bg-primary/10"
+              >
+                Sign In
+              </Button>
+            ) : (
+              <>
+                <Button
+                  onClick={() => navigate("/dashboard")}
+                  variant="ghost"
+                  className="hover:bg-primary/10"
+                >
+                  Dashboard
+                </Button>
+                <Button
+                  onClick={handleSignOut}
+                  variant="ghost"
+                  className="hover:bg-primary/10"
+                >
+                  Sign Out
+                </Button>
+              </>
+            )}
+          </div>
         </div>
       </nav>
 

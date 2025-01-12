@@ -4,6 +4,7 @@ import { useSession, useSupabaseClient } from "@supabase/auth-helpers-react";
 import { VoiceRecorder } from "@/components/VoiceRecorder";
 import { RecordingItem } from "@/components/recording/RecordingItem";
 import { PlaybackControls } from "@/components/recording/PlaybackControls";
+import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
 const Index = () => {
@@ -15,6 +16,22 @@ const Index = () => {
   const [currentlyPlaying, setCurrentlyPlaying] = useState<number | null>(null);
   const [playbackSpeed, setPlaybackSpeed] = useState(1);
   const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
+
+  const handleSignOut = async () => {
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        console.error("Error signing out:", error);
+        toast.error("Failed to sign out");
+        return;
+      }
+      toast.success("Signed out successfully");
+      navigate("/landing");
+    } catch (error) {
+      console.error("Error in handleSignOut:", error);
+      toast.error("Failed to sign out");
+    }
+  };
 
   useEffect(() => {
     if (!session) {
@@ -127,6 +144,13 @@ const Index = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-3xl font-bold">Dashboard</h1>
+        <Button onClick={handleSignOut} variant="outline">
+          Sign Out
+        </Button>
+      </div>
+
       <VoiceRecorder />
       {(playbackSpeed !== 1 || currentlyPlaying !== null) && (
         <PlaybackControls
