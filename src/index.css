@@ -48,5 +48,15 @@
     mask-image: url("data:image/svg+xml,%3Csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0,50 Q25,45 50,50 T100,50 T150,50 T200,50' stroke='black' fill='none'/%3E%3C/svg%3E");
     mask-size: cover;
     mask-repeat: repeat-x;
+    animation: wave 2s linear infinite;
+  }
+}
+
+@keyframes wave {
+  0% {
+    mask-position: 0% 0;
+  }
+  100% {
+    mask-position: 200% 0;
   }
 }
