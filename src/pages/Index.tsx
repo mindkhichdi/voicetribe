@@ -5,6 +5,7 @@ import { VoiceRecorder } from "@/components/VoiceRecorder";
 import { RecordingItem } from "@/components/recording/RecordingItem";
 import { PlaybackControls } from "@/components/recording/PlaybackControls";
 import { Button } from "@/components/ui/button";
+import { Plus, Grid2X2, List, SlidersHorizontal } from "lucide-react";
 import { toast } from "sonner";
 
 const Index = () => {
@@ -143,62 +144,77 @@ const Index = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold">Dashboard</h1>
-        <Button onClick={handleSignOut} variant="outline">
-          Sign Out
-        </Button>
-      </div>
-
-      <VoiceRecorder />
-      {(playbackSpeed !== 1 || currentlyPlaying !== null) && (
-        <PlaybackControls
-          playbackSpeed={playbackSpeed}
-          onSpeedChange={handleSpeedChange}
-        />
-      )}
-      
-      <div className="space-y-8">
-        {/* User's Recordings */}
-        <div>
-          <h2 className="text-2xl font-bold mb-4">Your Recordings</h2>
-          <div className="space-y-4">
-            {recordings.map((recording, index) => (
-              <RecordingItem
-                key={recording.id}
-                recording={recording}
-                index={index}
-                currentlyPlaying={currentlyPlaying}
-                playbackSpeed={playbackSpeed}
-                onPlay={handlePlay}
-                onSpeedChange={handleSpeedChange}
-                onDelete={handleDelete}
-              />
-            ))}
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex justify-between items-center mb-8">
+          <div className="flex items-center gap-4">
+            <Button variant="outline" size="icon">
+              <Plus className="h-4 w-4" />
+            </Button>
+            <Button variant="outline">All</Button>
+          </div>
+          <div className="flex items-center gap-4">
+            <Button variant="ghost" size="icon">
+              <List className="h-4 w-4" />
+            </Button>
+            <Button variant="ghost" size="icon">
+              <Grid2X2 className="h-4 w-4" />
+            </Button>
+            <Button variant="ghost" size="icon">
+              <SlidersHorizontal className="h-4 w-4" />
+            </Button>
           </div>
         </div>
 
-        {/* Shared Recordings */}
+        <div className="space-y-4">
+          {recordings.map((recording, index) => (
+            <RecordingItem
+              key={recording.id}
+              recording={recording}
+              index={index}
+              currentlyPlaying={currentlyPlaying}
+              playbackSpeed={playbackSpeed}
+              onPlay={handlePlay}
+              onSpeedChange={handleSpeedChange}
+              onDelete={handleDelete}
+            />
+          ))}
+        </div>
+
         {sharedRecordings.length > 0 && (
-          <div>
+          <div className="mt-8">
             <h2 className="text-2xl font-bold mb-4">Shared With You</h2>
             <div className="space-y-4">
               {sharedRecordings.map((recording, index) => (
                 <RecordingItem
                   key={recording.id}
                   recording={recording}
-                  index={recordings.length + index} // Offset index to avoid conflicts with own recordings
+                  index={recordings.length + index}
                   currentlyPlaying={currentlyPlaying}
                   playbackSpeed={playbackSpeed}
                   onPlay={handlePlay}
                   onSpeedChange={handleSpeedChange}
-                  onDelete={() => {}} // Shared recordings cannot be deleted by the recipient
+                  onDelete={() => {}}
                 />
               ))}
             </div>
           </div>
         )}
+
+        <div className="fixed bottom-8 right-8">
+          <Button 
+            size="lg"
+            className="rounded-full bg-red-500 hover:bg-red-600 text-white px-6"
+            onClick={() => {
+              const recorder = document.querySelector('[aria-label="Record"]');
+              if (recorder) {
+                (recorder as HTMLButtonElement).click();
+              }
+            }}
+          >
+            start recording
+          </Button>
+        </div>
       </div>
     </div>
   );
