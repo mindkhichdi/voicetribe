@@ -41,15 +41,15 @@ export const RecordingCard = ({
   });
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg p-4 hover:shadow-md transition-shadow duration-200">
+    <div className="glass rounded-lg p-4 hover:shadow-md transition-shadow duration-200">
       <div className="flex items-center justify-between">
         <div className="flex flex-col gap-2">
           <div className="flex items-center gap-2">
-            <Badge variant="secondary" className="text-xs">NEW</Badge>
+            <Badge variant="secondary" className="text-xs bg-purple-soft text-purple-vivid">NEW</Badge>
             <span className="text-sm text-gray-500">{formattedDate}</span>
             <span className="text-sm text-gray-500">00:03</span>
           </div>
-          <h3 className="text-lg font-semibold">Recording {index + 1}</h3>
+          <h3 className="text-lg font-semibold text-purple-dark dark:text-purple-light">Recording {index + 1}</h3>
           <p className="text-sm text-gray-500">Hello. Hello. Recording, recording.</p>
         </div>
         <div className="flex items-center gap-2">
@@ -62,7 +62,7 @@ export const RecordingCard = ({
           {!isShared && <ShareDialog recordingId={recording.id} />}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon">
+              <Button variant="ghost" size="icon" className="hover:bg-purple-soft/50">
                 <MoreVertical className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>

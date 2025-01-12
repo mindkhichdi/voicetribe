@@ -26,23 +26,25 @@ export const TopBar = () => {
   };
 
   return (
-    <div className="flex justify-between items-center mb-8 p-4 bg-white dark:bg-gray-800 rounded-lg shadow-sm">
-      <div className="flex items-center gap-4">
-        <Button variant="outline" size="icon">
-          <Filter className="h-4 w-4" />
-        </Button>
-        <Button variant="outline">All Recordings</Button>
-      </div>
-      <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon">
-          <List className="h-4 w-4" />
-        </Button>
-        <Button variant="ghost" size="icon">
-          <Grid2X2 className="h-4 w-4" />
-        </Button>
-        <Button variant="ghost" size="icon" onClick={handleSignOut}>
-          <LogOut className="h-4 w-4" />
-        </Button>
+    <div className="glass mb-8 p-4 rounded-lg">
+      <div className="flex justify-between items-center">
+        <div className="flex items-center gap-4">
+          <Button variant="outline" size="icon" className="border-purple hover:bg-purple-soft/50">
+            <Filter className="h-4 w-4" />
+          </Button>
+          <Button variant="outline" className="border-purple hover:bg-purple-soft/50">All Recordings</Button>
+        </div>
+        <div className="flex items-center gap-4">
+          <Button variant="ghost" size="icon" className="hover:bg-purple-soft/50">
+            <List className="h-4 w-4" />
+          </Button>
+          <Button variant="ghost" size="icon" className="hover:bg-purple-soft/50">
+            <Grid2X2 className="h-4 w-4" />
+          </Button>
+          <Button variant="ghost" size="icon" onClick={handleSignOut} className="hover:bg-purple-soft/50">
+            <LogOut className="h-4 w-4" />
+          </Button>
+        </div>
       </div>
     </div>
   );

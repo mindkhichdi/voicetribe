@@ -9,7 +9,7 @@ export const FloatingRecordButton = ({ onClick }: RecordButtonProps) => {
   return (
     <Button 
       size="lg"
-      className="fixed bottom-8 right-8 rounded-full bg-red-500 hover:bg-red-600 text-white px-6"
+      className="fixed bottom-8 right-8 rounded-full bg-purple hover:bg-purple-vivid text-white px-6 animate-float"
       onClick={onClick}
     >
       start recording
