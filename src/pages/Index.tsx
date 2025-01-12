@@ -1,12 +1,10 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSession, useSupabaseClient } from "@supabase/auth-helpers-react";
-import { VoiceRecorder } from "@/components/VoiceRecorder";
-import { RecordingItem } from "@/components/recording/RecordingItem";
-import { PlaybackControls } from "@/components/recording/PlaybackControls";
-import { Button } from "@/components/ui/button";
-import { Plus, Grid2X2, List, SlidersHorizontal } from "lucide-react";
 import { toast } from "sonner";
+import { TopBar } from "@/components/dashboard/TopBar";
+import { RecordingsList } from "@/components/dashboard/RecordingsList";
+import { FloatingRecordButton } from "@/components/dashboard/RecordButton";
 
 const Index = () => {
   const session = useSession();
@@ -18,22 +16,6 @@ const Index = () => {
   const [playbackSpeed, setPlaybackSpeed] = useState(1);
   const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
 
-  const handleSignOut = async () => {
-    try {
-      const { error } = await supabase.auth.signOut();
-      if (error) {
-        console.error("Error signing out:", error);
-        toast.error("Failed to sign out");
-        return;
-      }
-      toast.success("Signed out successfully");
-      navigate("/landing");
-    } catch (error) {
-      console.error("Error in handleSignOut:", error);
-      toast.error("Failed to sign out");
-    }
-  };
-
   useEffect(() => {
     if (!session) {
       navigate("/login");
@@ -42,7 +24,6 @@ const Index = () => {
 
     const fetchRecordings = async () => {
       try {
-        // Fetch user's own recordings
         const { data: ownRecordings, error: ownError } = await supabase
           .from("recordings")
           .select("*")
@@ -55,7 +36,6 @@ const Index = () => {
           return;
         }
 
-        // Fetch recordings shared with the user
         const { data: shared, error: sharedError } = await supabase
           .from("shared_recordings")
           .select(`
@@ -74,9 +54,8 @@ const Index = () => {
           return;
         }
 
-        // Transform shared recordings data
         const transformedShared = shared
-          .filter(item => item.recordings) // Filter out any null recordings
+          .filter(item => item.recordings)
           .map(item => ({
             ...item.recordings,
           }));
@@ -143,78 +122,40 @@ const Index = () => {
     }
   };
 
+  const handleStartRecording = () => {
+    const recorder = document.querySelector('[aria-label="Record"]');
+    if (recorder) {
+      (recorder as HTMLButtonElement).click();
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <div className="container mx-auto px-4 py-8">
-        <div className="flex justify-between items-center mb-8">
-          <div className="flex items-center gap-4">
-            <Button variant="outline" size="icon">
-              <Plus className="h-4 w-4" />
-            </Button>
-            <Button variant="outline">All</Button>
-          </div>
-          <div className="flex items-center gap-4">
-            <Button variant="ghost" size="icon">
-              <List className="h-4 w-4" />
-            </Button>
-            <Button variant="ghost" size="icon">
-              <Grid2X2 className="h-4 w-4" />
-            </Button>
-            <Button variant="ghost" size="icon">
-              <SlidersHorizontal className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
-
-        <div className="space-y-4">
-          {recordings.map((recording, index) => (
-            <RecordingItem
-              key={recording.id}
-              recording={recording}
-              index={index}
-              currentlyPlaying={currentlyPlaying}
-              playbackSpeed={playbackSpeed}
-              onPlay={handlePlay}
-              onSpeedChange={handleSpeedChange}
-              onDelete={handleDelete}
-            />
-          ))}
-        </div>
+        <TopBar />
+        
+        <RecordingsList
+          recordings={recordings}
+          currentlyPlaying={currentlyPlaying}
+          playbackSpeed={playbackSpeed}
+          onPlay={handlePlay}
+          onSpeedChange={handleSpeedChange}
+          onDelete={handleDelete}
+        />
 
         {sharedRecordings.length > 0 && (
-          <div className="mt-8">
-            <h2 className="text-2xl font-bold mb-4">Shared With You</h2>
-            <div className="space-y-4">
-              {sharedRecordings.map((recording, index) => (
-                <RecordingItem
-                  key={recording.id}
-                  recording={recording}
-                  index={recordings.length + index}
-                  currentlyPlaying={currentlyPlaying}
-                  playbackSpeed={playbackSpeed}
-                  onPlay={handlePlay}
-                  onSpeedChange={handleSpeedChange}
-                  onDelete={() => {}}
-                />
-              ))}
-            </div>
-          </div>
+          <RecordingsList
+            recordings={sharedRecordings}
+            currentlyPlaying={currentlyPlaying}
+            playbackSpeed={playbackSpeed}
+            onPlay={handlePlay}
+            onSpeedChange={handleSpeedChange}
+            onDelete={handleDelete}
+            isShared
+          />
         )}
 
-        <div className="fixed bottom-8 right-8">
-          <Button 
-            size="lg"
-            className="rounded-full bg-red-500 hover:bg-red-600 text-white px-6"
-            onClick={() => {
-              const recorder = document.querySelector('[aria-label="Record"]');
-              if (recorder) {
-                (recorder as HTMLButtonElement).click();
-              }
-            }}
-          >
-            start recording
-          </Button>
-        </div>
+        <FloatingRecordButton onClick={handleStartRecording} />
       </div>
     </div>
   );
