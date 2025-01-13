@@ -4,7 +4,7 @@ import { useSession, useSupabaseClient } from "@supabase/auth-helpers-react";
 import { toast } from "sonner";
 import { TopBar } from "@/components/dashboard/TopBar";
 import { RecordingsList } from "@/components/dashboard/RecordingsList";
-import { FloatingRecordButton } from "@/components/dashboard/RecordButton";
+import { VoiceRecorder } from "@/components/VoiceRecorder";
 
 const Index = () => {
   const session = useSession();
@@ -15,6 +15,7 @@ const Index = () => {
   const [currentlyPlaying, setCurrentlyPlaying] = useState<number | null>(null);
   const [playbackSpeed, setPlaybackSpeed] = useState(1);
   const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
+  const [showRecorder, setShowRecorder] = useState(false);
 
   useEffect(() => {
     if (!session) {
@@ -122,40 +123,44 @@ const Index = () => {
     }
   };
 
-  const handleStartRecording = () => {
-    const recorder = document.querySelector('[aria-label="Record"]');
-    if (recorder) {
-      (recorder as HTMLButtonElement).click();
-    }
-  };
-
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <div className="container mx-auto px-4 py-8">
         <TopBar />
         
-        <RecordingsList
-          recordings={recordings}
-          currentlyPlaying={currentlyPlaying}
-          playbackSpeed={playbackSpeed}
-          onPlay={handlePlay}
-          onSpeedChange={handleSpeedChange}
-          onDelete={handleDelete}
-        />
+        {showRecorder ? (
+          <VoiceRecorder />
+        ) : (
+          <>
+            <RecordingsList
+              recordings={recordings}
+              currentlyPlaying={currentlyPlaying}
+              playbackSpeed={playbackSpeed}
+              onPlay={handlePlay}
+              onSpeedChange={handleSpeedChange}
+              onDelete={handleDelete}
+            />
 
-        {sharedRecordings.length > 0 && (
-          <RecordingsList
-            recordings={sharedRecordings}
-            currentlyPlaying={currentlyPlaying}
-            playbackSpeed={playbackSpeed}
-            onPlay={handlePlay}
-            onSpeedChange={handleSpeedChange}
-            onDelete={handleDelete}
-            isShared
-          />
+            {sharedRecordings.length > 0 && (
+              <RecordingsList
+                recordings={sharedRecordings}
+                currentlyPlaying={currentlyPlaying}
+                playbackSpeed={playbackSpeed}
+                onPlay={handlePlay}
+                onSpeedChange={handleSpeedChange}
+                onDelete={handleDelete}
+                isShared
+              />
+            )}
+
+            <button
+              onClick={() => setShowRecorder(true)}
+              className="fixed bottom-8 right-8 rounded-full bg-purple hover:bg-purple-vivid text-white px-6 py-3 animate-float"
+            >
+              start recording
+            </button>
+          </>
         )}
-
-        <FloatingRecordButton onClick={handleStartRecording} />
       </div>
     </div>
   );
