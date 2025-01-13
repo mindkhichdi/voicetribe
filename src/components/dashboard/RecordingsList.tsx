@@ -5,6 +5,7 @@ interface Recording {
   id: string;
   blob_url: string;
   created_at: string;
+  description?: string;
 }
 
 interface RecordingsListProps {

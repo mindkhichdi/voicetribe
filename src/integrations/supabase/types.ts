@@ -37,6 +37,7 @@ export type Database = {
         Row: {
           blob_url: string
           created_at: string
+          description: string | null
           id: string
           timestamp: string
           title: string | null
@@ -45,6 +46,7 @@ export type Database = {
         Insert: {
           blob_url: string
           created_at?: string
+          description?: string | null
           id?: string
           timestamp?: string
           title?: string | null
@@ -53,6 +55,7 @@ export type Database = {
         Update: {
           blob_url?: string
           created_at?: string
+          description?: string | null
           id?: string
           timestamp?: string
           title?: string | null
