@@ -6,7 +6,11 @@ import { supabase } from '@/integrations/supabase/client';
 import { RecordButton } from './recording/RecordButton';
 import { RecordingInterface } from './recording/RecordingInterface';
 
-export const VoiceRecorder = () => {
+interface VoiceRecorderProps {
+  onRecordingComplete?: (recording: any) => void;
+}
+
+export const VoiceRecorder = ({ onRecordingComplete }: VoiceRecorderProps) => {
   const [isRecording, setIsRecording] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [duration, setDuration] = useState('00:00/01:00');
@@ -30,20 +34,25 @@ export const VoiceRecorder = () => {
         .from('recordings')
         .getPublicUrl(fileName);
 
-      const { error: dbError } = await supabase
+      const { data, error: dbError } = await supabase
         .from('recordings')
         .insert({
           blob_url: publicUrl,
           user_id: session!.user.id,
-        });
+        })
+        .select()
+        .single();
 
       if (dbError) throw dbError;
 
-      return publicUrl;
+      return data;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['recordings'] });
       toast.success('Recording saved successfully');
+      if (onRecordingComplete) {
+        onRecordingComplete(data);
+      }
     },
     onError: (error) => {
       console.error('Error saving recording:', error);

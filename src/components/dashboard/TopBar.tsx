@@ -1,11 +1,26 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSupabaseClient } from '@supabase/auth-helpers-react';
 import { Button } from '@/components/ui/button';
 import { Filter, Grid2X2, List, LogOut } from 'lucide-react';
 import { toast } from 'sonner';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
-export const TopBar = () => {
+export type SortOption = 'recent' | 'oldest' | 'alphabetical';
+export type ViewMode = 'list' | 'grid';
+
+interface TopBarProps {
+  onSortChange: (sort: SortOption) => void;
+  onViewModeChange: (mode: ViewMode) => void;
+  viewMode: ViewMode;
+}
+
+export const TopBar = ({ onSortChange, onViewModeChange, viewMode }: TopBarProps) => {
   const navigate = useNavigate();
   const supabase = useSupabaseClient();
 
@@ -29,17 +44,38 @@ export const TopBar = () => {
     <div className="glass mb-8 p-4 rounded-lg">
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-4">
-          <Button variant="outline" size="icon" className="border-purple hover:bg-purple-soft/50">
-            <Filter className="h-4 w-4" />
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="icon" className="border-purple hover:bg-purple-soft/50">
+                <Filter className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="w-48 bg-white dark:bg-gray-800">
+              <DropdownMenuItem onClick={() => onSortChange('recent')}>
+                Most Recent
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => onSortChange('oldest')}>
+                Oldest First
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => onSortChange('alphabetical')}>
+                Alphabetically
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
           <Button variant="outline" className="border-purple hover:bg-purple-soft/50">All Recordings</Button>
         </div>
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" className="hover:bg-purple-soft/50">
-            <List className="h-4 w-4" />
-          </Button>
-          <Button variant="ghost" size="icon" className="hover:bg-purple-soft/50">
-            <Grid2X2 className="h-4 w-4" />
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="hover:bg-purple-soft/50"
+            onClick={() => onViewModeChange(viewMode === 'list' ? 'grid' : 'list')}
+          >
+            {viewMode === 'list' ? (
+              <Grid2X2 className="h-4 w-4" />
+            ) : (
+              <List className="h-4 w-4" />
+            )}
           </Button>
           <Button variant="ghost" size="icon" onClick={handleSignOut} className="hover:bg-purple-soft/50">
             <LogOut className="h-4 w-4" />

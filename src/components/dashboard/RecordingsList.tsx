@@ -15,6 +15,7 @@ interface RecordingsListProps {
   onSpeedChange: (value: number[]) => void;
   onDelete: (id: string) => void;
   isShared?: boolean;
+  viewMode?: 'list' | 'grid';
 }
 
 export const RecordingsList = ({
@@ -25,15 +26,16 @@ export const RecordingsList = ({
   onSpeedChange,
   onDelete,
   isShared = false,
+  viewMode = 'list',
 }: RecordingsListProps) => {
   if (recordings.length === 0) {
     return null;
   }
 
   return (
-    <div className="space-y-4">
+    <div className={viewMode === 'grid' ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4' : 'space-y-4'}>
       {isShared && recordings.length > 0 && (
-        <h2 className="text-2xl font-bold mb-4">Shared With You</h2>
+        <h2 className="text-2xl font-bold mb-4 col-span-full">Shared With You</h2>
       )}
       {recordings.map((recording, index) => (
         <RecordingCard

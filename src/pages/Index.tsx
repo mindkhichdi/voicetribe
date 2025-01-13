@@ -2,9 +2,10 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSession, useSupabaseClient } from "@supabase/auth-helpers-react";
 import { toast } from "sonner";
-import { TopBar } from "@/components/dashboard/TopBar";
+import { TopBar, type SortOption, type ViewMode } from "@/components/dashboard/TopBar";
 import { RecordingsList } from "@/components/dashboard/RecordingsList";
 import { VoiceRecorder } from "@/components/VoiceRecorder";
+import { FloatingRecordButton } from "@/components/dashboard/RecordButton";
 
 const Index = () => {
   const session = useSession();
@@ -15,6 +16,9 @@ const Index = () => {
   const [currentlyPlaying, setCurrentlyPlaying] = useState<number | null>(null);
   const [playbackSpeed, setPlaybackSpeed] = useState(1);
   const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
+  const [sortOption, setSortOption] = useState<SortOption>('recent');
+  const [viewMode, setViewMode] = useState<ViewMode>('list');
+  const [showRecorder, setShowRecorder] = useState(false);
 
   useEffect(() => {
     if (!session) {
@@ -73,6 +77,23 @@ const Index = () => {
     fetchRecordings();
   }, [session, supabase, navigate]);
 
+  const handleSortChange = (sort: SortOption) => {
+    setSortOption(sort);
+    const sortedRecordings = [...recordings].sort((a, b) => {
+      switch (sort) {
+        case 'recent':
+          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+        case 'oldest':
+          return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+        case 'alphabetical':
+          return (a.title || '').localeCompare(b.title || '');
+        default:
+          return 0;
+      }
+    });
+    setRecordings(sortedRecordings);
+  };
+
   const handlePlay = (url: string, index: number) => {
     if (audio) {
       audio.pause();
@@ -125,10 +146,17 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <div className="container mx-auto px-4 py-8">
-        <TopBar />
+        <TopBar 
+          onSortChange={handleSortChange}
+          onViewModeChange={setViewMode}
+          viewMode={viewMode}
+        />
         
         <div className="space-y-8">
-          <VoiceRecorder />
+          {showRecorder && <VoiceRecorder onRecordingComplete={(newRecording) => {
+            setRecordings(prev => [newRecording, ...prev]);
+            setShowRecorder(false);
+          }} />}
 
           <RecordingsList
             recordings={recordings}
@@ -137,6 +165,7 @@ const Index = () => {
             onPlay={handlePlay}
             onSpeedChange={handleSpeedChange}
             onDelete={handleDelete}
+            viewMode={viewMode}
           />
 
           {sharedRecordings.length > 0 && (
@@ -148,10 +177,13 @@ const Index = () => {
               onSpeedChange={handleSpeedChange}
               onDelete={handleDelete}
               isShared
+              viewMode={viewMode}
             />
           )}
         </div>
       </div>
+
+      <FloatingRecordButton onClick={() => setShowRecorder(!showRecorder)} />
     </div>
   );
 };
