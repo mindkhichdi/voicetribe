@@ -134,7 +134,7 @@ export const VoiceRecorder = () => {
   };
 
   return (
-    <div className="w-full max-w-2xl mx-auto p-6">
+    <div className="glass rounded-lg p-6">
       {isRecording ? (
         <RecordingInterface
           isRecording={isRecording}
@@ -144,7 +144,7 @@ export const VoiceRecorder = () => {
           onCancel={cancelRecording}
         />
       ) : (
-        <div className="flex justify-center mb-8">
+        <div className="flex justify-center">
           <RecordButton
             isRecording={isRecording}
             onStartRecording={startRecording}

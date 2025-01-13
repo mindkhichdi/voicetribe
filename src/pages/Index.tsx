@@ -15,7 +15,6 @@ const Index = () => {
   const [currentlyPlaying, setCurrentlyPlaying] = useState<number | null>(null);
   const [playbackSpeed, setPlaybackSpeed] = useState(1);
   const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
-  const [showRecorder, setShowRecorder] = useState(false);
 
   useEffect(() => {
     if (!session) {
@@ -128,39 +127,30 @@ const Index = () => {
       <div className="container mx-auto px-4 py-8">
         <TopBar />
         
-        {showRecorder ? (
+        <div className="space-y-8">
           <VoiceRecorder />
-        ) : (
-          <>
+
+          <RecordingsList
+            recordings={recordings}
+            currentlyPlaying={currentlyPlaying}
+            playbackSpeed={playbackSpeed}
+            onPlay={handlePlay}
+            onSpeedChange={handleSpeedChange}
+            onDelete={handleDelete}
+          />
+
+          {sharedRecordings.length > 0 && (
             <RecordingsList
-              recordings={recordings}
+              recordings={sharedRecordings}
               currentlyPlaying={currentlyPlaying}
               playbackSpeed={playbackSpeed}
               onPlay={handlePlay}
               onSpeedChange={handleSpeedChange}
               onDelete={handleDelete}
+              isShared
             />
-
-            {sharedRecordings.length > 0 && (
-              <RecordingsList
-                recordings={sharedRecordings}
-                currentlyPlaying={currentlyPlaying}
-                playbackSpeed={playbackSpeed}
-                onPlay={handlePlay}
-                onSpeedChange={handleSpeedChange}
-                onDelete={handleDelete}
-                isShared
-              />
-            )}
-
-            <button
-              onClick={() => setShowRecorder(true)}
-              className="fixed bottom-8 right-8 rounded-full bg-purple hover:bg-purple-vivid text-white px-6 py-3 animate-float"
-            >
-              start recording
-            </button>
-          </>
-        )}
+          )}
+        </div>
       </div>
     </div>
   );
