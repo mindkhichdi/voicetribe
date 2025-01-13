@@ -1,165 +1,140 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
+import { useSupabaseClient } from '@supabase/auth-helpers-react';
 import { toast } from 'sonner';
-import { useSession } from '@supabase/auth-helpers-react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
 import { RecordButton } from './recording/RecordButton';
 import { RecordingInterface } from './recording/RecordingInterface';
+import { RecordingActions } from './recording/RecordingActions';
 
 interface VoiceRecorderProps {
-  onRecordingComplete?: (recording: any) => void;
+  onRecordingComplete: (recording: any) => void;
 }
 
 export const VoiceRecorder = ({ onRecordingComplete }: VoiceRecorderProps) => {
   const [isRecording, setIsRecording] = useState(false);
-  const [isPaused, setIsPaused] = useState(false);
-  const [duration, setDuration] = useState('00:00/01:00');
-  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
-  const chunksRef = useRef<Blob[]>([]);
-  const timerRef = useRef<NodeJS.Timeout>();
-  const startTimeRef = useRef<number>(0);
-  const session = useSession();
-  const queryClient = useQueryClient();
-
-  const uploadMutation = useMutation({
-    mutationFn: async (blob: Blob) => {
-      const fileName = `${crypto.randomUUID()}.webm`;
-      const { data: uploadData, error: uploadError } = await supabase.storage
-        .from('recordings')
-        .upload(fileName, blob);
-
-      if (uploadError) throw uploadError;
-
-      const { data: { publicUrl } } = supabase.storage
-        .from('recordings')
-        .getPublicUrl(fileName);
-
-      const { data, error: dbError } = await supabase
-        .from('recordings')
-        .insert({
-          blob_url: publicUrl,
-          user_id: session!.user.id,
-        })
-        .select()
-        .single();
-
-      if (dbError) throw dbError;
-
-      return data;
-    },
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ['recordings'] });
-      toast.success('Recording saved successfully');
-      if (onRecordingComplete) {
-        onRecordingComplete(data);
-      }
-    },
-    onError: (error) => {
-      console.error('Error saving recording:', error);
-      toast.error('Failed to save recording');
-    },
-  });
-
-  useEffect(() => {
-    return () => {
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
-      }
-    };
-  }, []);
-
-  const updateDuration = () => {
-    const elapsed = Math.floor((Date.now() - startTimeRef.current) / 1000);
-    const minutes = Math.floor(elapsed / 60);
-    const seconds = elapsed % 60;
-    setDuration(`${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}/01:00`);
-  };
+  const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const mediaRecorder = useRef<MediaRecorder | null>(null);
+  const audioChunks = useRef<Blob[]>([]);
+  const supabase = useSupabaseClient();
 
   const startRecording = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      mediaRecorderRef.current = new MediaRecorder(stream);
-      
-      mediaRecorderRef.current.ondataavailable = (e) => {
-        if (e.data.size > 0) {
-          chunksRef.current.push(e.data);
-        }
+      mediaRecorder.current = new MediaRecorder(stream);
+      audioChunks.current = [];
+
+      mediaRecorder.current.ondataavailable = (event) => {
+        audioChunks.current.push(event.data);
       };
 
-      mediaRecorderRef.current.onstop = async () => {
-        const blob = new Blob(chunksRef.current, { type: 'audio/webm' });
-        uploadMutation.mutate(blob);
-        chunksRef.current = [];
+      mediaRecorder.current.onstop = async () => {
+        const audioBlob = new Blob(audioChunks.current, { type: 'audio/webm' });
+        setAudioBlob(audioBlob);
+        await processRecording(audioBlob);
       };
 
-      mediaRecorderRef.current.start();
+      mediaRecorder.current.start();
       setIsRecording(true);
-      startTimeRef.current = Date.now();
-      timerRef.current = setInterval(updateDuration, 1000);
-      toast.success('Recording started');
     } catch (error) {
-      console.error('Error accessing microphone:', error);
-      toast.error('Could not access microphone');
+      console.error('Error starting recording:', error);
+      toast.error('Failed to start recording');
     }
   };
 
   const stopRecording = () => {
-    if (mediaRecorderRef.current && isRecording) {
-      mediaRecorderRef.current.stop();
-      mediaRecorderRef.current.stream.getTracks().forEach(track => track.stop());
+    if (mediaRecorder.current && isRecording) {
+      mediaRecorder.current.stop();
+      mediaRecorder.current.stream.getTracks().forEach(track => track.stop());
       setIsRecording(false);
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
-      }
     }
   };
 
-  const pauseRecording = () => {
-    if (mediaRecorderRef.current && isRecording) {
-      if (isPaused) {
-        mediaRecorderRef.current.resume();
-        timerRef.current = setInterval(updateDuration, 1000);
-      } else {
-        mediaRecorderRef.current.pause();
-        if (timerRef.current) {
-          clearInterval(timerRef.current);
+  const processRecording = async (blob: Blob) => {
+    setIsProcessing(true);
+    try {
+      // Convert blob to base64
+      const reader = new FileReader();
+      reader.readAsDataURL(blob);
+      reader.onloadend = async () => {
+        const base64Audio = reader.result?.toString().split(',')[1];
+        
+        if (!base64Audio) {
+          throw new Error('Failed to convert audio to base64');
         }
-      }
-      setIsPaused(!isPaused);
+
+        // Get transcription
+        const { data: transcriptionData, error: transcriptionError } = await supabase.functions.invoke('transcribe', {
+          body: { audio: base64Audio }
+        });
+
+        if (transcriptionError) {
+          console.error('Transcription error:', transcriptionError);
+          throw new Error('Failed to transcribe audio');
+        }
+
+        // Upload to storage
+        const fileName = `recording-${Date.now()}.webm`;
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from('recordings')
+          .upload(fileName, blob);
+
+        if (uploadError) {
+          console.error('Upload error:', uploadError);
+          throw new Error('Failed to upload recording');
+        }
+
+        // Get public URL
+        const { data: { publicUrl } } = supabase.storage
+          .from('recordings')
+          .getPublicUrl(fileName);
+
+        // Save to database
+        const { data: recordingData, error: dbError } = await supabase
+          .from('recordings')
+          .insert({
+            blob_url: publicUrl,
+            description: transcriptionData.text.split(' ').slice(0, 10).join(' ') + '...'
+          })
+          .select()
+          .single();
+
+        if (dbError) {
+          console.error('Database error:', dbError);
+          throw new Error('Failed to save recording');
+        }
+
+        onRecordingComplete(recordingData);
+        setAudioBlob(null);
+        toast.success('Recording saved successfully');
+      };
+    } catch (error) {
+      console.error('Error processing recording:', error);
+      toast.error('Failed to process recording');
+    } finally {
+      setIsProcessing(false);
     }
   };
 
-  const cancelRecording = () => {
-    if (mediaRecorderRef.current && isRecording) {
-      mediaRecorderRef.current.stop();
-      mediaRecorderRef.current.stream.getTracks().forEach(track => track.stop());
-      setIsRecording(false);
-      chunksRef.current = [];
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
-      }
-      toast.info('Recording cancelled');
-    }
+  const discardRecording = () => {
+    setAudioBlob(null);
   };
 
   return (
-    <div className="glass rounded-lg p-6">
-      {isRecording ? (
-        <RecordingInterface
+    <div className="space-y-4">
+      {!audioBlob ? (
+        <RecordButton
           isRecording={isRecording}
-          duration={duration}
-          onStop={stopRecording}
-          onPause={pauseRecording}
-          onCancel={cancelRecording}
+          onClick={isRecording ? stopRecording : startRecording}
         />
       ) : (
-        <div className="flex justify-center">
-          <RecordButton
-            isRecording={isRecording}
-            onStartRecording={startRecording}
-            onStopRecording={stopRecording}
+        <>
+          <RecordingInterface audioBlob={audioBlob} />
+          <RecordingActions
+            onSave={() => processRecording(audioBlob)}
+            onDiscard={discardRecording}
+            isProcessing={isProcessing}
           />
-        </div>
+        </>
       )}
     </div>
   );
