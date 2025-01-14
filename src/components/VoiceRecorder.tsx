@@ -51,56 +51,37 @@ export const VoiceRecorder = ({ onRecordingComplete }: VoiceRecorderProps) => {
   const processRecording = async (blob: Blob) => {
     setIsProcessing(true);
     try {
-      const reader = new FileReader();
-      reader.readAsDataURL(blob);
-      reader.onloadend = async () => {
-        const base64Audio = reader.result?.toString().split(',')[1];
-        
-        if (!base64Audio) {
-          throw new Error('Failed to convert audio to base64');
-        }
+      const fileName = `recording-${Date.now()}.webm`;
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('recordings')
+        .upload(fileName, blob);
 
-        const { data: transcriptionData, error: transcriptionError } = await supabase.functions.invoke('transcribe', {
-          body: { audio: base64Audio }
-        });
+      if (uploadError) {
+        console.error('Upload error:', uploadError);
+        throw new Error('Failed to upload recording');
+      }
 
-        if (transcriptionError) {
-          console.error('Transcription error:', transcriptionError);
-          throw new Error('Failed to transcribe audio');
-        }
+      const { data: { publicUrl } } = supabase.storage
+        .from('recordings')
+        .getPublicUrl(fileName);
 
-        const fileName = `recording-${Date.now()}.webm`;
-        const { data: uploadData, error: uploadError } = await supabase.storage
-          .from('recordings')
-          .upload(fileName, blob);
+      const { data: recordingData, error: dbError } = await supabase
+        .from('recordings')
+        .insert({
+          blob_url: publicUrl,
+          description: 'New Recording'
+        })
+        .select()
+        .single();
 
-        if (uploadError) {
-          console.error('Upload error:', uploadError);
-          throw new Error('Failed to upload recording');
-        }
+      if (dbError) {
+        console.error('Database error:', dbError);
+        throw new Error('Failed to save recording');
+      }
 
-        const { data: { publicUrl } } = supabase.storage
-          .from('recordings')
-          .getPublicUrl(fileName);
-
-        const { data: recordingData, error: dbError } = await supabase
-          .from('recordings')
-          .insert({
-            blob_url: publicUrl,
-            description: transcriptionData.text.split(' ').slice(0, 10).join(' ') + '...'
-          })
-          .select()
-          .single();
-
-        if (dbError) {
-          console.error('Database error:', dbError);
-          throw new Error('Failed to save recording');
-        }
-
-        onRecordingComplete(recordingData);
-        setAudioBlob(null);
-        toast.success('Recording saved successfully');
-      };
+      onRecordingComplete(recordingData);
+      setAudioBlob(null);
+      toast.success('Recording saved successfully');
     } catch (error) {
       console.error('Error processing recording:', error);
       toast.error('Failed to process recording');
