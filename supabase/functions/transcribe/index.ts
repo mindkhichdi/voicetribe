@@ -37,6 +37,7 @@ function processBase64Chunks(base64String: string, chunkSize = 32768) {
 }
 
 serve(async (req) => {
+  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
   }
@@ -48,6 +49,8 @@ serve(async (req) => {
       throw new Error('No audio data provided')
     }
 
+    console.log('Processing audio data...');
+
     // Process audio in chunks
     const binaryAudio = processBase64Chunks(audio)
     
@@ -56,6 +59,8 @@ serve(async (req) => {
     const blob = new Blob([binaryAudio], { type: 'audio/webm' })
     formData.append('file', blob, 'audio.webm')
     formData.append('model', 'whisper-1')
+
+    console.log('Sending request to OpenAI...');
 
     // Send to OpenAI
     const response = await fetch('https://api.openai.com/v1/audio/transcriptions', {
@@ -67,10 +72,13 @@ serve(async (req) => {
     })
 
     if (!response.ok) {
-      throw new Error(`OpenAI API error: ${await response.text()}`)
+      const errorText = await response.text();
+      console.error('OpenAI API error:', errorText);
+      throw new Error(`OpenAI API error: ${errorText}`)
     }
 
     const result = await response.json()
+    console.log('Transcription successful:', result);
 
     return new Response(
       JSON.stringify({ text: result.text }),
@@ -78,6 +86,7 @@ serve(async (req) => {
     )
 
   } catch (error) {
+    console.error('Error in transcribe function:', error);
     return new Response(
       JSON.stringify({ error: error.message }),
       {
