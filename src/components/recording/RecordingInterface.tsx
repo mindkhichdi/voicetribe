@@ -19,8 +19,8 @@ export const RecordingInterface = ({
   onCancel,
 }: RecordingInterfaceProps) => {
   return (
-    <div className="fixed inset-x-0 bottom-0 bg-white dark:bg-gray-900 p-4 border-t border-gray-200 shadow-lg z-50 animate-fade-in">
-      <div className="max-w-4xl mx-auto flex items-center justify-between gap-4">
+    <div className="fixed inset-x-0 bottom-0 flex items-center justify-center pb-8">
+      <div className="bg-white dark:bg-gray-900 p-4 rounded-lg shadow-lg flex items-center gap-4 animate-fade-in">
         <Button
           variant="ghost"
           size="sm"
@@ -28,7 +28,7 @@ export const RecordingInterface = ({
           className="text-gray-500 hover:text-gray-700"
         >
           <X className="h-4 w-4" />
-          <span>Cancel</span>
+          <span className="ml-2">Cancel</span>
         </Button>
 
         <Button
@@ -38,7 +38,7 @@ export const RecordingInterface = ({
           className="text-gray-500 hover:text-gray-700"
         >
           <Pause className="h-4 w-4" />
-          <span>Pause</span>
+          <span className="ml-2">Pause</span>
         </Button>
 
         <span className="text-sm font-mono">{duration}</span>
@@ -49,7 +49,7 @@ export const RecordingInterface = ({
           onClick={onStop}
           className="bg-black hover:bg-black/90 text-white"
         >
-          stop recording
+          Stop recording
         </Button>
       </div>
     </div>
