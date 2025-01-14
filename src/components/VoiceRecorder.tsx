@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { useSupabaseClient } from '@supabase/auth-helpers-react';
+import { useSupabaseClient, useUser } from '@supabase/auth-helpers-react';
 import { toast } from 'sonner';
 import { RecordButton } from './recording/RecordButton';
 import { RecordingInterface } from './recording/RecordingInterface';
@@ -15,6 +15,7 @@ export const VoiceRecorder = ({ onRecordingComplete }: VoiceRecorderProps) => {
   const mediaRecorder = useRef<MediaRecorder | null>(null);
   const audioChunks = useRef<Blob[]>([]);
   const supabase = useSupabaseClient();
+  const user = useUser();
 
   const startRecording = async () => {
     try {
@@ -51,6 +52,10 @@ export const VoiceRecorder = ({ onRecordingComplete }: VoiceRecorderProps) => {
   const processRecording = async (blob: Blob) => {
     setIsProcessing(true);
     try {
+      if (!user) {
+        throw new Error('User must be logged in to record');
+      }
+
       const fileName = `recording-${Date.now()}.webm`;
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from('recordings')
@@ -69,7 +74,8 @@ export const VoiceRecorder = ({ onRecordingComplete }: VoiceRecorderProps) => {
         .from('recordings')
         .insert({
           blob_url: publicUrl,
-          description: 'New Recording'
+          description: 'New Recording',
+          user_id: user.id
         })
         .select()
         .single();
