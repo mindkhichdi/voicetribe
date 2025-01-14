@@ -3,7 +3,6 @@ import { useSupabaseClient } from '@supabase/auth-helpers-react';
 import { toast } from 'sonner';
 import { RecordButton } from './recording/RecordButton';
 import { RecordingInterface } from './recording/RecordingInterface';
-import { RecordingActions } from './recording/RecordingActions';
 
 interface VoiceRecorderProps {
   onRecordingComplete: (recording: any) => void;
@@ -52,7 +51,6 @@ export const VoiceRecorder = ({ onRecordingComplete }: VoiceRecorderProps) => {
   const processRecording = async (blob: Blob) => {
     setIsProcessing(true);
     try {
-      // Convert blob to base64
       const reader = new FileReader();
       reader.readAsDataURL(blob);
       reader.onloadend = async () => {
@@ -62,7 +60,6 @@ export const VoiceRecorder = ({ onRecordingComplete }: VoiceRecorderProps) => {
           throw new Error('Failed to convert audio to base64');
         }
 
-        // Get transcription
         const { data: transcriptionData, error: transcriptionError } = await supabase.functions.invoke('transcribe', {
           body: { audio: base64Audio }
         });
@@ -72,7 +69,6 @@ export const VoiceRecorder = ({ onRecordingComplete }: VoiceRecorderProps) => {
           throw new Error('Failed to transcribe audio');
         }
 
-        // Upload to storage
         const fileName = `recording-${Date.now()}.webm`;
         const { data: uploadData, error: uploadError } = await supabase.storage
           .from('recordings')
@@ -83,12 +79,10 @@ export const VoiceRecorder = ({ onRecordingComplete }: VoiceRecorderProps) => {
           throw new Error('Failed to upload recording');
         }
 
-        // Get public URL
         const { data: { publicUrl } } = supabase.storage
           .from('recordings')
           .getPublicUrl(fileName);
 
-        // Save to database
         const { data: recordingData, error: dbError } = await supabase
           .from('recordings')
           .insert({
@@ -115,33 +109,25 @@ export const VoiceRecorder = ({ onRecordingComplete }: VoiceRecorderProps) => {
     }
   };
 
-  const discardRecording = () => {
-    setAudioBlob(null);
-  };
-
   return (
     <div className="space-y-4">
-      {!audioBlob ? (
+      {!isRecording ? (
         <RecordButton
           isRecording={isRecording}
           onStartRecording={startRecording}
           onStopRecording={stopRecording}
         />
       ) : (
-        <>
-          <RecordingInterface
-            audioBlob={audioBlob}
-            isRecording={isRecording}
-            onStop={stopRecording}
-            onPause={() => {}}
-            onCancel={discardRecording}
-          />
-          <RecordingActions
-            onSave={() => processRecording(audioBlob)}
-            onDiscard={discardRecording}
-            isProcessing={isProcessing}
-          />
-        </>
+        <RecordingInterface
+          audioBlob={audioBlob}
+          isRecording={isRecording}
+          onStop={stopRecording}
+          onPause={() => {}}
+          onCancel={() => {
+            stopRecording();
+            setAudioBlob(null);
+          }}
+        />
       )}
     </div>
   );
