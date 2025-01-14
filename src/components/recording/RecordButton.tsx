@@ -8,20 +8,25 @@ interface RecordButtonProps {
   onStopRecording: () => void;
 }
 
-export const RecordButton = ({ isRecording, onStartRecording, onStopRecording }: RecordButtonProps) => {
+export const RecordButton = ({ 
+  isRecording, 
+  onStartRecording, 
+  onStopRecording 
+}: RecordButtonProps) => {
   return (
     <Button
       onClick={isRecording ? onStopRecording : onStartRecording}
-      className={`rounded-full px-4 py-2 ${
+      size="lg"
+      className={`fixed bottom-8 right-8 rounded-full ${
         isRecording 
-          ? 'bg-red-500/10 text-red-500 hover:bg-red-500/20' 
-          : 'bg-black text-white hover:bg-black/90'
-      }`}
+          ? 'bg-red-500 hover:bg-red-600' 
+          : 'bg-purple hover:bg-purple-vivid'
+      } text-white px-6 animate-float`}
     >
       {isRecording ? (
         <div className="flex items-center space-x-2">
           <Square className="w-4 h-4" />
-          <span>Record</span>
+          <span>Stop</span>
         </div>
       ) : (
         <div className="flex items-center space-x-2">

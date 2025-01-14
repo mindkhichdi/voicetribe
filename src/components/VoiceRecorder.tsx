@@ -124,11 +124,18 @@ export const VoiceRecorder = ({ onRecordingComplete }: VoiceRecorderProps) => {
       {!audioBlob ? (
         <RecordButton
           isRecording={isRecording}
-          onClick={isRecording ? stopRecording : startRecording}
+          onStartRecording={startRecording}
+          onStopRecording={stopRecording}
         />
       ) : (
         <>
-          <RecordingInterface audioBlob={audioBlob} />
+          <RecordingInterface
+            audioBlob={audioBlob}
+            isRecording={isRecording}
+            onStop={stopRecording}
+            onPause={() => {}}
+            onCancel={discardRecording}
+          />
           <RecordingActions
             onSave={() => processRecording(audioBlob)}
             onDiscard={discardRecording}
