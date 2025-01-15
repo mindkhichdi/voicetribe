@@ -1,7 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { useSupabaseClient, useUser } from '@supabase/auth-helpers-react';
 import { toast } from 'sonner';
-import { RecordButton } from './recording/RecordButton';
 import { RecordingInterface } from './recording/RecordingInterface';
 
 interface VoiceRecorderProps {
@@ -98,13 +97,7 @@ export const VoiceRecorder = ({ onRecordingComplete }: VoiceRecorderProps) => {
 
   return (
     <div className="space-y-4">
-      {!isRecording ? (
-        <RecordButton
-          isRecording={isRecording}
-          onStartRecording={startRecording}
-          onStopRecording={stopRecording}
-        />
-      ) : (
+      {isRecording ? (
         <RecordingInterface
           audioBlob={audioBlob}
           isRecording={isRecording}
@@ -115,6 +108,14 @@ export const VoiceRecorder = ({ onRecordingComplete }: VoiceRecorderProps) => {
             setAudioBlob(null);
           }}
         />
+      ) : (
+        <Button 
+          size="lg"
+          className="fixed bottom-8 right-8 rounded-full bg-purple hover:bg-purple-vivid text-white px-6 animate-float"
+          onClick={startRecording}
+        >
+          start recording
+        </Button>
       )}
     </div>
   );
