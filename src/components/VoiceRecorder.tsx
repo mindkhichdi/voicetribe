@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import { useSupabaseClient, useUser } from '@supabase/auth-helpers-react';
 import { toast } from 'sonner';
 import { RecordingInterface } from './recording/RecordingInterface';
+import { Button } from './ui/button';
 
 interface VoiceRecorderProps {
   onRecordingComplete: (recording: any) => void;
