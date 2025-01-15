@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, Pause } from 'lucide-react';
+import { X } from 'lucide-react';
 import { Button } from '../ui/button';
 
 interface RecordingInterfaceProps {
@@ -18,7 +18,7 @@ export const RecordingInterface = ({
 }: RecordingInterfaceProps) => {
   return (
     <div className="fixed inset-x-0 bottom-0 flex items-center justify-center pb-8">
-      <div className="bg-white dark:bg-gray-900 p-4 rounded-lg shadow-lg flex items-center gap-4 animate-fade-in">
+      <div className="bg-white dark:bg-gray-900 p-4 rounded-lg shadow-lg flex items-center space-x-4 animate-fade-in">
         <Button
           variant="ghost"
           size="sm"
@@ -27,16 +27,6 @@ export const RecordingInterface = ({
         >
           <X className="h-4 w-4" />
           <span className="ml-2">Cancel</span>
-        </Button>
-
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={onPause}
-          className="text-purple hover:text-purple-vivid"
-        >
-          <Pause className="h-4 w-4" />
-          <span className="ml-2">Pause</span>
         </Button>
 
         <Button
