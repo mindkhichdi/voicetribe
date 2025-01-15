@@ -6,6 +6,7 @@ interface Recording {
   blob_url: string;
   created_at: string;
   description?: string;
+  title?: string;
 }
 
 interface RecordingsListProps {
@@ -15,6 +16,7 @@ interface RecordingsListProps {
   onPlay: (url: string, index: number) => void;
   onSpeedChange: (value: number[]) => void;
   onDelete: (id: string) => void;
+  onTitleUpdate?: (id: string, newTitle: string) => void;
   isShared?: boolean;
   viewMode?: 'list' | 'grid';
 }
@@ -26,6 +28,7 @@ export const RecordingsList = ({
   onPlay,
   onSpeedChange,
   onDelete,
+  onTitleUpdate,
   isShared = false,
   viewMode = 'list',
 }: RecordingsListProps) => {
@@ -48,6 +51,7 @@ export const RecordingsList = ({
           onPlay={onPlay}
           onSpeedChange={onSpeedChange}
           onDelete={onDelete}
+          onTitleUpdate={onTitleUpdate}
           isShared={isShared}
         />
       ))}

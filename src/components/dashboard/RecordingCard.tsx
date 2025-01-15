@@ -25,6 +25,7 @@ interface RecordingCardProps {
   onPlay: (url: string, index: number) => void;
   onSpeedChange: (value: number[]) => void;
   onDelete: (id: string) => void;
+  onTitleUpdate?: (id: string, newTitle: string) => void;
   isShared?: boolean;
 }
 
@@ -36,6 +37,7 @@ export const RecordingCard = ({
   onPlay,
   onSpeedChange,
   onDelete,
+  onTitleUpdate,
   isShared = false,
 }: RecordingCardProps) => {
   const [isEditing, setIsEditing] = useState(false);
@@ -57,6 +59,10 @@ export const RecordingCard = ({
         .eq('id', recording.id);
 
       if (error) throw error;
+      
+      if (onTitleUpdate) {
+        onTitleUpdate(recording.id, editedTitle);
+      }
       
       toast.success('Title updated successfully');
       setIsEditing(false);
