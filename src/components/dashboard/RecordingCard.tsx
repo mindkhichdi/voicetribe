@@ -11,6 +11,7 @@ interface Recording {
   blob_url: string;
   created_at: string;
   description?: string;
+  title?: string;
 }
 
 interface RecordingCardProps {
@@ -50,7 +51,9 @@ export const RecordingCard = ({
             <span className="text-sm text-gray-500">{formattedDate}</span>
             <span className="text-sm text-gray-500">00:03</span>
           </div>
-          <h3 className="text-lg font-semibold text-purple-dark dark:text-purple-light">Recording {index + 1}</h3>
+          <h3 className="text-lg font-semibold text-purple-dark dark:text-purple-light">
+            {recording.title || `Recording ${index + 1}`}
+          </h3>
           <p className="text-sm text-gray-500">{recording.description || 'No transcription available'}</p>
         </div>
         <div className="flex items-center gap-2">

@@ -56,7 +56,19 @@ export const VoiceRecorder = ({ onRecordingComplete }: VoiceRecorderProps) => {
         throw new Error('User must be logged in to record');
       }
 
+      // Get the count of existing recordings to determine the next number
+      const { count, error: countError } = await supabase
+        .from('recordings')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', user.id);
+
+      if (countError) {
+        throw new Error('Failed to get recording count');
+      }
+
+      const recordingNumber = (count || 0) + 1;
       const fileName = `recording-${Date.now()}.webm`;
+      
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from('recordings')
         .upload(fileName, blob);
@@ -74,7 +86,8 @@ export const VoiceRecorder = ({ onRecordingComplete }: VoiceRecorderProps) => {
         .from('recordings')
         .insert({
           blob_url: publicUrl,
-          description: 'New Recording',
+          description: `Recording ${recordingNumber}`,
+          title: `Recording ${recordingNumber}`,
           user_id: user.id
         })
         .select()
@@ -98,7 +111,15 @@ export const VoiceRecorder = ({ onRecordingComplete }: VoiceRecorderProps) => {
 
   return (
     <div className="space-y-4">
-      {isRecording ? (
+      {!isRecording ? (
+        <Button 
+          size="lg"
+          className="fixed bottom-8 right-8 rounded-full bg-purple hover:bg-purple-vivid text-white px-6 animate-float"
+          onClick={startRecording}
+        >
+          start recording
+        </Button>
+      ) : (
         <RecordingInterface
           audioBlob={audioBlob}
           isRecording={isRecording}
@@ -109,14 +130,6 @@ export const VoiceRecorder = ({ onRecordingComplete }: VoiceRecorderProps) => {
             setAudioBlob(null);
           }}
         />
-      ) : (
-        <Button 
-          size="lg"
-          className="fixed bottom-8 right-8 rounded-full bg-purple hover:bg-purple-vivid text-white px-6 animate-float"
-          onClick={startRecording}
-        >
-          start recording
-        </Button>
       )}
     </div>
   );
