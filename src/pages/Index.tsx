@@ -18,6 +18,29 @@ const Index = () => {
   const [sortOption, setSortOption] = useState<SortOption>('recent');
   const [viewMode, setViewMode] = useState<ViewMode>('list');
 
+  const handleTitleUpdate = async (id: string, newTitle: string) => {
+    try {
+      const { error } = await supabase
+        .from('recordings')
+        .update({ title: newTitle })
+        .eq('id', id);
+
+      if (error) throw error;
+
+      // Update local state
+      setRecordings(prevRecordings =>
+        prevRecordings.map(recording =>
+          recording.id === id ? { ...recording, title: newTitle } : recording
+        )
+      );
+
+      toast.success('Title updated successfully');
+    } catch (error) {
+      console.error('Error updating title:', error);
+      toast.error('Failed to update title');
+    }
+  };
+
   useEffect(() => {
     if (!session) {
       navigate("/login");
@@ -158,6 +181,7 @@ const Index = () => {
             onPlay={handlePlay}
             onSpeedChange={handleSpeedChange}
             onDelete={handleDelete}
+            onTitleUpdate={handleTitleUpdate}
             viewMode={viewMode}
           />
 
@@ -169,6 +193,7 @@ const Index = () => {
               onPlay={handlePlay}
               onSpeedChange={handleSpeedChange}
               onDelete={handleDelete}
+              onTitleUpdate={handleTitleUpdate}
               isShared
               viewMode={viewMode}
             />

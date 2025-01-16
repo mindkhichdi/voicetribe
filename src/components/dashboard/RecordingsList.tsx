@@ -16,7 +16,7 @@ interface RecordingsListProps {
   onPlay: (url: string, index: number) => void;
   onSpeedChange: (value: number[]) => void;
   onDelete: (id: string) => void;
-  onTitleUpdate?: (id: string, newTitle: string) => void;
+  onTitleUpdate: (id: string, newTitle: string) => void;
   isShared?: boolean;
   viewMode?: 'list' | 'grid';
 }
