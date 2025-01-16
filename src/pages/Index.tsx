@@ -18,6 +18,23 @@ const Index = () => {
   const [sortOption, setSortOption] = useState<SortOption>('recent');
   const [viewMode, setViewMode] = useState<ViewMode>('list');
 
+  const sortRecordings = (recordings: any[], sort: SortOption) => {
+    return [...recordings].sort((a, b) => {
+      switch (sort) {
+        case 'recent':
+          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+        case 'oldest':
+          return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+        case 'alphabetical':
+          const titleA = (a.title || '').toLowerCase();
+          const titleB = (b.title || '').toLowerCase();
+          return titleA.localeCompare(titleB);
+        default:
+          return 0;
+      }
+    });
+  };
+
   const handleTitleUpdate = async (id: string, newTitle: string) => {
     try {
       console.log('Updating title for recording:', id, 'New title:', newTitle);
@@ -32,19 +49,21 @@ const Index = () => {
         throw error;
       }
 
-      // Update local state for main recordings
-      setRecordings(prevRecordings =>
-        prevRecordings.map(recording =>
+      // Update and sort main recordings
+      setRecordings(prevRecordings => {
+        const updatedRecordings = prevRecordings.map(recording =>
           recording.id === id ? { ...recording, title: newTitle } : recording
-        )
-      );
+        );
+        return sortRecordings(updatedRecordings, sortOption);
+      });
 
-      // Update local state for shared recordings
-      setSharedRecordings(prevRecordings =>
-        prevRecordings.map(recording =>
+      // Update and sort shared recordings
+      setSharedRecordings(prevRecordings => {
+        const updatedRecordings = prevRecordings.map(recording =>
           recording.id === id ? { ...recording, title: newTitle } : recording
-        )
-      );
+        );
+        return sortRecordings(updatedRecordings, sortOption);
+      });
 
       console.log('Title updated successfully');
       toast.success('Title updated successfully');
@@ -107,8 +126,12 @@ const Index = () => {
         console.log('Fetched recordings:', ownRecordings);
         console.log('Fetched shared recordings:', transformedShared);
         
-        setRecordings(ownRecordings || []);
-        setSharedRecordings(transformedShared || []);
+        // Sort recordings before setting state
+        const sortedOwnRecordings = sortRecordings(ownRecordings || [], sortOption);
+        const sortedSharedRecordings = sortRecordings(transformedShared || [], sortOption);
+        
+        setRecordings(sortedOwnRecordings);
+        setSharedRecordings(sortedSharedRecordings);
       } catch (error) {
         console.error("Error in fetchRecordings:", error);
         toast.error("Failed to fetch recordings");
@@ -116,23 +139,11 @@ const Index = () => {
     };
 
     fetchRecordings();
-  }, [session, supabase, navigate]);
+  }, [session, supabase, navigate, sortOption]);
 
   const handleSortChange = (sort: SortOption) => {
     setSortOption(sort);
-    const sortedRecordings = [...recordings].sort((a, b) => {
-      switch (sort) {
-        case 'recent':
-          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-        case 'oldest':
-          return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
-        case 'alphabetical':
-          return (a.title || '').localeCompare(b.title || '');
-        default:
-          return 0;
-      }
-    });
-    setRecordings(sortedRecordings);
+    // Sorting will be handled by the useEffect when sortOption changes
   };
 
   const handlePlay = (url: string, index: number) => {
@@ -188,7 +199,7 @@ const Index = () => {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <div className="container mx-auto px-4 py-8">
         <TopBar 
-          onSortChange={setSortOption}
+          onSortChange={handleSortChange}
           onViewModeChange={setViewMode}
           viewMode={viewMode}
         />
@@ -222,7 +233,7 @@ const Index = () => {
       </div>
 
       <VoiceRecorder onRecordingComplete={(newRecording) => {
-        setRecordings(prev => [newRecording, ...prev]);
+        setRecordings(prev => sortRecordings([newRecording, ...prev], sortOption));
       }} />
     </div>
   );
