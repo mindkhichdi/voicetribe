@@ -20,20 +20,33 @@ const Index = () => {
 
   const handleTitleUpdate = async (id: string, newTitle: string) => {
     try {
+      console.log('Updating title for recording:', id, 'New title:', newTitle);
+      
       const { error } = await supabase
         .from('recordings')
         .update({ title: newTitle })
         .eq('id', id);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase error updating title:', error);
+        throw error;
+      }
 
-      // Update local state
+      // Update local state for main recordings
       setRecordings(prevRecordings =>
         prevRecordings.map(recording =>
           recording.id === id ? { ...recording, title: newTitle } : recording
         )
       );
 
+      // Update local state for shared recordings
+      setSharedRecordings(prevRecordings =>
+        prevRecordings.map(recording =>
+          recording.id === id ? { ...recording, title: newTitle } : recording
+        )
+      );
+
+      console.log('Title updated successfully');
       toast.success('Title updated successfully');
     } catch (error) {
       console.error('Error updating title:', error);
@@ -49,6 +62,9 @@ const Index = () => {
 
     const fetchRecordings = async () => {
       try {
+        console.log('Fetching recordings for user:', session.user.id);
+        
+        // Fetch user's recordings with titles
         const { data: ownRecordings, error: ownError } = await supabase
           .from("recordings")
           .select("*")
@@ -61,6 +77,7 @@ const Index = () => {
           return;
         }
 
+        // Fetch shared recordings with titles
         const { data: shared, error: sharedError } = await supabase
           .from("shared_recordings")
           .select(`
@@ -68,7 +85,9 @@ const Index = () => {
             recordings (
               id,
               blob_url,
-              created_at
+              created_at,
+              title,
+              description
             )
           `)
           .eq("shared_with_id", session.user.id);
@@ -85,10 +104,11 @@ const Index = () => {
             ...item.recordings,
           }));
 
+        console.log('Fetched recordings:', ownRecordings);
+        console.log('Fetched shared recordings:', transformedShared);
+        
         setRecordings(ownRecordings || []);
         setSharedRecordings(transformedShared || []);
-        console.log("Fetched recordings:", ownRecordings);
-        console.log("Fetched shared recordings:", transformedShared);
       } catch (error) {
         console.error("Error in fetchRecordings:", error);
         toast.error("Failed to fetch recordings");
@@ -168,7 +188,7 @@ const Index = () => {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <div className="container mx-auto px-4 py-8">
         <TopBar 
-          onSortChange={handleSortChange}
+          onSortChange={setSortOption}
           onViewModeChange={setViewMode}
           viewMode={viewMode}
         />
