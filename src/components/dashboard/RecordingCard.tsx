@@ -77,6 +77,36 @@ export const RecordingCard = ({
     setIsEditing(false);
   };
 
+  const handleCopyLink = async () => {
+    try {
+      const shareUrl = `${window.location.origin}/recording/${recording.id}`;
+      await navigator.clipboard.writeText(shareUrl);
+      toast.success('Link copied to clipboard');
+    } catch (error) {
+      console.error('Error copying link:', error);
+      toast.error('Failed to copy link');
+    }
+  };
+
+  const handleDownload = async () => {
+    try {
+      const response = await fetch(recording.blob_url);
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${recording.title || `Recording ${index + 1}`}.webm`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      toast.success('Download started');
+    } catch (error) {
+      console.error('Error downloading recording:', error);
+      toast.error('Failed to download recording');
+    }
+  };
+
   return (
     <div className="glass rounded-lg p-4 hover:shadow-md transition-shadow duration-200">
       <div className="flex items-center justify-between">
@@ -135,15 +165,21 @@ export const RecordingCard = ({
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={handleCopyLink}>
                 <Copy className="h-4 w-4 mr-2" />
                 Copy link
               </DropdownMenuItem>
-              <DropdownMenuItem>
+              <DropdownMenuItem onSelect={(e) => {
+                e.preventDefault();
+                const shareDialog = document.querySelector(`button[aria-label="Share recording"]`);
+                if (shareDialog instanceof HTMLElement) {
+                  shareDialog.click();
+                }
+              }}>
                 <Share2 className="h-4 w-4 mr-2" />
                 Share
               </DropdownMenuItem>
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={handleDownload}>
                 <Download className="h-4 w-4 mr-2" />
                 Download
               </DropdownMenuItem>
