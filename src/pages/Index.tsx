@@ -5,7 +5,6 @@ import { toast } from "sonner";
 import { TopBar, type SortOption, type ViewMode } from "@/components/dashboard/TopBar";
 import { RecordingsList } from "@/components/dashboard/RecordingsList";
 import { VoiceRecorder } from "@/components/VoiceRecorder";
-import { FloatingRecordButton } from "@/components/dashboard/RecordButton";
 
 const Index = () => {
   const session = useSession();
@@ -18,7 +17,6 @@ const Index = () => {
   const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
   const [sortOption, setSortOption] = useState<SortOption>('recent');
   const [viewMode, setViewMode] = useState<ViewMode>('list');
-  const [showRecorder, setShowRecorder] = useState(false);
 
   useEffect(() => {
     if (!session) {
@@ -153,11 +151,6 @@ const Index = () => {
         />
         
         <div className="space-y-8">
-          {showRecorder && <VoiceRecorder onRecordingComplete={(newRecording) => {
-            setRecordings(prev => [newRecording, ...prev]);
-            setShowRecorder(false);
-          }} />}
-
           <RecordingsList
             recordings={recordings}
             currentlyPlaying={currentlyPlaying}
@@ -183,7 +176,9 @@ const Index = () => {
         </div>
       </div>
 
-      <FloatingRecordButton onClick={() => setShowRecorder(!showRecorder)} />
+      <VoiceRecorder onRecordingComplete={(newRecording) => {
+        setRecordings(prev => [newRecording, ...prev]);
+      }} />
     </div>
   );
 };

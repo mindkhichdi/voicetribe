@@ -1,8 +1,8 @@
 import React, { useState, useRef } from 'react';
 import { useSupabaseClient, useUser } from '@supabase/auth-helpers-react';
 import { toast } from 'sonner';
-import { RecordingInterface } from './recording/RecordingInterface';
 import { Button } from './ui/button';
+import { X } from 'lucide-react';
 
 interface VoiceRecorderProps {
   onRecordingComplete: (recording: any) => void;
@@ -56,7 +56,6 @@ export const VoiceRecorder = ({ onRecordingComplete }: VoiceRecorderProps) => {
         throw new Error('User must be logged in to record');
       }
 
-      // Get the count of existing recordings to determine the next number
       const { count, error: countError } = await supabase
         .from('recordings')
         .select('*', { count: 'exact', head: true })
@@ -110,26 +109,39 @@ export const VoiceRecorder = ({ onRecordingComplete }: VoiceRecorderProps) => {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="fixed inset-x-0 bottom-0 flex justify-center pb-8">
       {!isRecording ? (
         <Button 
           size="lg"
-          className="fixed bottom-8 right-8 rounded-full bg-purple hover:bg-purple-vivid text-white px-6 animate-float"
+          className="rounded-full bg-purple hover:bg-purple-vivid text-white px-6 animate-float"
           onClick={startRecording}
         >
           start recording
         </Button>
       ) : (
-        <RecordingInterface
-          audioBlob={audioBlob}
-          isRecording={isRecording}
-          onStop={stopRecording}
-          onPause={() => {}}
-          onCancel={() => {
-            stopRecording();
-            setAudioBlob(null);
-          }}
-        />
+        <div className="bg-white dark:bg-gray-900 p-4 rounded-lg shadow-lg flex items-center space-x-4 animate-fade-in">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => {
+              stopRecording();
+              setAudioBlob(null);
+            }}
+            className="text-purple hover:text-purple-vivid"
+          >
+            <X className="h-4 w-4" />
+            <span className="ml-2">Cancel</span>
+          </Button>
+
+          <Button
+            variant="default"
+            size="sm"
+            onClick={stopRecording}
+            className="bg-purple hover:bg-purple-vivid text-white"
+          >
+            Stop recording
+          </Button>
+        </div>
       )}
     </div>
   );
