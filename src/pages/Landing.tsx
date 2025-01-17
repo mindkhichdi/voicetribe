@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useSession, useSupabaseClient } from "@supabase/auth-helpers-react";
-import { Music } from "lucide-react";
+import { Mic, Share2, Users, ArrowRight, Music } from "lucide-react";
 import { toast } from "sonner";
 
 const Landing = () => {
@@ -26,13 +26,20 @@ const Landing = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4 relative">
+    <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4 relative overflow-hidden">
+      {/* Floating Elements */}
       <div className="fixed right-8 top-24 z-50 animate-float">
         <div className="glass rounded-full p-4">
           <Music className="h-6 w-6 text-primary" />
         </div>
       </div>
+      <div className="fixed left-12 bottom-24 z-50 animate-float delay-150">
+        <div className="glass rounded-full p-4">
+          <Mic className="h-6 w-6 text-primary" />
+        </div>
+      </div>
 
+      {/* Navigation */}
       <nav className="fixed top-0 w-full glass z-50">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
           <h2 className="font-display text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">
@@ -69,11 +76,15 @@ const Landing = () => {
         </div>
       </nav>
 
+      {/* Hero Section */}
       <div className="max-w-4xl w-full text-center space-y-12">
         <h1 className="text-6xl md:text-8xl font-bold font-display mb-8 relative">
           <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/70">
             VoiceTribe
           </span>
+          <div className="absolute -right-8 top-0 animate-float delay-300">
+            <span className="text-2xl">🎙️</span>
+          </div>
         </h1>
         
         <p className="text-xl md:text-2xl font-mono max-w-2xl mx-auto opacity-80">
@@ -86,28 +97,32 @@ const Landing = () => {
               onClick={() => navigate("/login")}
               className="retro-border retro-shadow transform hover:-translate-y-1 transition-transform px-8 py-6 text-lg"
             >
-              Get Started
+              Get Started <ArrowRight className="ml-2" />
             </Button>
           ) : (
             <Button
               onClick={() => navigate("/dashboard")}
               className="retro-border retro-shadow transform hover:-translate-y-1 transition-transform px-8 py-6 text-lg"
             >
-              Go to Dashboard
+              Go to Dashboard <ArrowRight className="ml-2" />
             </Button>
           )}
         </div>
 
+        {/* Features Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-16">
           <FeatureCard
+            icon={<Mic className="h-8 w-8 text-primary" />}
             title="Record"
             description="Capture your voice notes with one click"
           />
           <FeatureCard
+            icon={<Share2 className="h-8 w-8 text-primary" />}
             title="Share"
             description="Share recordings with your tribe"
           />
           <FeatureCard
+            icon={<Users className="h-8 w-8 text-primary" />}
             title="Connect"
             description="Build your voice community"
           />
@@ -117,12 +132,15 @@ const Landing = () => {
   );
 };
 
-const FeatureCard = ({ title, description }: { title: string; description: string }) => (
+const FeatureCard = ({ icon, title, description }: { icon: React.ReactNode; title: string; description: string }) => (
   <div className="glass p-6 rounded-xl retro-border hover:retro-shadow transition-all duration-300">
-    <h3 className="font-display text-xl font-semibold mb-2 text-primary">
-      {title}
-    </h3>
-    <p className="text-foreground/80">{description}</p>
+    <div className="flex flex-col items-center gap-4">
+      {icon}
+      <h3 className="font-display text-xl font-semibold text-primary">
+        {title}
+      </h3>
+      <p className="text-foreground/80">{description}</p>
+    </div>
   </div>
 );
 
