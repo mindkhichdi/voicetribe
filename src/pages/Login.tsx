@@ -25,7 +25,6 @@ const Login = () => {
             sharedWithId: session.user.id
           });
 
-          // Create the share record
           const { error: shareError } = await supabase
             .from('shared_recordings')
             .insert({
@@ -70,7 +69,17 @@ const Login = () => {
 
         <Auth
           supabaseClient={supabase}
-          appearance={{ theme: ThemeSupa }}
+          appearance={{ 
+            theme: ThemeSupa,
+            variables: {
+              default: {
+                colors: {
+                  brand: '#9b87f5',
+                  brandAccent: '#7E69AB',
+                }
+              }
+            }
+          }}
           providers={[]}
           redirectTo={window.location.href}
           view={action === "share" ? "sign_up" : "sign_in"}
