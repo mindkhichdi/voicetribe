@@ -27,6 +27,43 @@ const handler = async (req: Request): Promise<Response> => {
     const { email, recordingId, sharedById }: InviteRequest = await req.json();
     console.log(`Processing invite for email: ${email}, recordingId: ${recordingId}`);
 
+    // Initialize Supabase client with service role key
+    const supabase = createClient(
+      SUPABASE_URL!,
+      SUPABASE_SERVICE_ROLE_KEY!
+    );
+
+    // Check if user exists
+    const { data: existingUsers, error: userError } = await supabase
+      .from('profiles')
+      .select('id')
+      .eq('id', (await supabase.auth.admin.listUsers()).data.users.find(u => u.email === email)?.id);
+
+    if (userError) {
+      console.error("Error checking user existence:", userError);
+      throw userError;
+    }
+
+    const userExists = existingUsers && existingUsers.length > 0;
+    console.log(`User exists: ${userExists}`);
+
+    if (userExists) {
+      // User exists, create share record
+      const existingUser = existingUsers[0];
+      const { error: shareError } = await supabase
+        .from('shared_recordings')
+        .insert({
+          recording_id: recordingId,
+          shared_with_id: existingUser.id,
+          shared_by_id: sharedById
+        });
+
+      if (shareError) {
+        console.error("Error creating share record:", shareError);
+        throw shareError;
+      }
+    }
+
     // Send email via Resend
     const res = await fetch("https://api.resend.com/emails", {
       method: "POST",
@@ -37,15 +74,26 @@ const handler = async (req: Request): Promise<Response> => {
       body: JSON.stringify({
         from: "VoiceTribe <onboarding@resend.dev>",
         to: [email],
-        subject: "You've been invited to listen to a voice recording on VoiceTribe",
-        html: `
-          <h2>You've been invited to listen to a voice recording!</h2>
-          <p>Someone has shared a voice recording with you on VoiceTribe.</p>
-          <p>Click the link below to sign up and listen:</p>
-          <a href="${req.headers.get("origin")}/login?recording=${recordingId}&email=${email}&action=share" style="display: inline-block; background-color: #6366f1; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px;">
-            Listen to Recording
-          </a>
-        `,
+        subject: userExists 
+          ? "A voice recording has been shared with you on VoiceTribe"
+          : "You've been invited to listen to a voice recording on VoiceTribe",
+        html: userExists
+          ? `
+            <h2>A voice recording has been shared with you!</h2>
+            <p>Someone has shared a voice recording with you on VoiceTribe.</p>
+            <p>Click the link below to listen:</p>
+            <a href="${req.headers.get("origin")}/dashboard" style="display: inline-block; background-color: #6366f1; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px;">
+              Listen to Recording
+            </a>
+          `
+          : `
+            <h2>You've been invited to listen to a voice recording!</h2>
+            <p>Someone has shared a voice recording with you on VoiceTribe.</p>
+            <p>Click the link below to sign up and listen:</p>
+            <a href="${req.headers.get("origin")}/login?recording=${recordingId}&email=${email}&action=share" style="display: inline-block; background-color: #6366f1; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px;">
+              Sign Up to Listen
+            </a>
+          `,
       }),
     });
 
@@ -55,7 +103,7 @@ const handler = async (req: Request): Promise<Response> => {
       throw new Error("Failed to send email");
     }
 
-    return new Response(JSON.stringify({ success: true }), {
+    return new Response(JSON.stringify({ success: true, userExists }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 200,
     });

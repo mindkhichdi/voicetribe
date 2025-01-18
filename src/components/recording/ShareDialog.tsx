@@ -29,8 +29,8 @@ export const ShareDialog = ({ recordingId }: ShareDialogProps) => {
       setIsSharing(true);
       console.log('Starting share process for recording:', recordingId);
 
-      // Send invitation email
-      const { error: emailError } = await supabase.functions.invoke('send-invite', {
+      // Send invitation email and handle share record creation
+      const { data, error: inviteError } = await supabase.functions.invoke('send-invite', {
         body: {
           email: shareEmail,
           recordingId: recordingId,
@@ -38,13 +38,17 @@ export const ShareDialog = ({ recordingId }: ShareDialogProps) => {
         },
       });
 
-      if (emailError) {
-        console.error('Error sending invitation:', emailError);
+      if (inviteError) {
+        console.error('Error sending invitation:', inviteError);
         toast.error('Failed to send invitation');
         return;
       }
 
-      toast.success('Invitation sent successfully');
+      const successMessage = data.userExists
+        ? 'Recording shared successfully'
+        : 'Invitation sent successfully';
+      
+      toast.success(successMessage);
       setShareEmail('');
       setIsOpen(false);
     } catch (error) {
@@ -62,6 +66,7 @@ export const ShareDialog = ({ recordingId }: ShareDialogProps) => {
           variant="ghost"
           size="icon"
           className="hover:bg-primary/10"
+          aria-label="Share recording"
         >
           <Share2 className="w-4 h-4" />
         </Button>
