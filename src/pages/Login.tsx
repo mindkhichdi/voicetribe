@@ -13,25 +13,25 @@ const Login = () => {
   const recordingId = searchParams.get("recording");
   const email = searchParams.get("email");
   const action = searchParams.get("action");
+  const sharedById = searchParams.get("sharedById");
 
   useEffect(() => {
     const handleSharedRecording = async () => {
       if (session?.user && recordingId && action === "share") {
         try {
-          // Check if the user signed up with email/password
-          const { data: authData } = await supabase.auth.getUser();
-          const isEmailPasswordUser = authData?.user?.app_metadata?.provider === 'email';
+          console.log('Handling shared recording after signup/login:', {
+            recordingId,
+            sharedById,
+            sharedWithId: session.user.id
+          });
 
-          if (!isEmailPasswordUser) {
-            console.log('User needs to sign up with email/password first');
-            return;
-          }
-
+          // Create the share record
           const { error: shareError } = await supabase
             .from('shared_recordings')
             .insert({
               recording_id: recordingId,
               shared_with_id: session.user.id,
+              shared_by_id: sharedById
             });
 
           if (shareError) {
@@ -52,7 +52,7 @@ const Login = () => {
     };
 
     handleSharedRecording();
-  }, [session, navigate, recordingId, action, supabase]);
+  }, [session, navigate, recordingId, action, sharedById, supabase]);
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">

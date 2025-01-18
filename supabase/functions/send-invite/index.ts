@@ -96,7 +96,7 @@ const handler = async (req: Request): Promise<Response> => {
             <h2>You've been invited to listen to a voice recording!</h2>
             <p>Someone has shared a voice recording with you on VoiceTribe.</p>
             <p>Click the link below to sign up and listen:</p>
-            <a href="${req.headers.get("origin")}/login?recording=${recordingId}&email=${email}&action=share" style="display: inline-block; background-color: #6366f1; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px;">
+            <a href="${req.headers.get("origin")}/login?recording=${recordingId}&email=${email}&action=share&sharedById=${sharedById}" style="display: inline-block; background-color: #6366f1; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px;">
               Sign Up to Listen
             </a>
           `,
