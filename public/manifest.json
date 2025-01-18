@@ -1,0 +1,21 @@
+{
+  "name": "VoiceTribe",
+  "short_name": "VoiceTribe",
+  "description": "Record, Share, and Connect through Voice",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#7C3AED",
+  "icons": [
+    {
+      "src": "/icons/favicon-196.png",
+      "sizes": "196x196",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/apple-icon-180.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ]
+}
