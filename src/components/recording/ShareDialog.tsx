@@ -26,15 +26,32 @@ export const ShareDialog = ({ recordingId }: ShareDialogProps) => {
 
   const handleShare = async () => {
     try {
+      // Validate required data
+      if (!session?.user?.id) {
+        toast.error('You must be logged in to share recordings');
+        return;
+      }
+
+      if (!recordingId) {
+        toast.error('Invalid recording selected');
+        return;
+      }
+
+      if (!shareEmail) {
+        toast.error('Please enter an email address');
+        return;
+      }
+
       setIsSharing(true);
       console.log('Starting share process for recording:', recordingId);
+      console.log('Current user ID:', session.user.id);
 
       // Send invitation email and handle share record creation
       const { data, error: inviteError } = await supabase.functions.invoke('send-invite', {
         body: {
           email: shareEmail,
           recordingId: recordingId,
-          sharedById: session?.user?.id,
+          sharedById: session.user.id,
         },
       });
 
@@ -44,7 +61,7 @@ export const ShareDialog = ({ recordingId }: ShareDialogProps) => {
         return;
       }
 
-      const successMessage = data.userExists
+      const successMessage = data?.userExists
         ? 'Recording shared successfully'
         : 'Invitation sent successfully';
       

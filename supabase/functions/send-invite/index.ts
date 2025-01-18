@@ -25,7 +25,17 @@ const handler = async (req: Request): Promise<Response> => {
 
   try {
     const { email, recordingId, sharedById }: InviteRequest = await req.json();
-    console.log(`Processing invite for email: ${email}, recordingId: ${recordingId}`);
+    
+    // Validate required fields
+    if (!email || !recordingId || !sharedById) {
+      console.error("Missing required fields:", { email, recordingId, sharedById });
+      return new Response(
+        JSON.stringify({ error: "Missing required fields" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    console.log(`Processing invite for email: ${email}, recordingId: ${recordingId}, sharedById: ${sharedById}`);
 
     // Initialize Supabase client with service role key
     const supabase = createClient(
@@ -34,22 +44,18 @@ const handler = async (req: Request): Promise<Response> => {
     );
 
     // Check if user exists
-    const { data: existingUsers, error: userError } = await supabase
-      .from('profiles')
-      .select('id')
-      .eq('id', (await supabase.auth.admin.listUsers()).data.users.find(u => u.email === email)?.id);
-
+    const { data: users, error: userError } = await supabase.auth.admin.listUsers();
     if (userError) {
-      console.error("Error checking user existence:", userError);
+      console.error("Error fetching users:", userError);
       throw userError;
     }
 
-    const userExists = existingUsers && existingUsers.length > 0;
+    const existingUser = users.users.find(u => u.email === email);
+    const userExists = !!existingUser;
     console.log(`User exists: ${userExists}`);
 
-    if (userExists) {
+    if (userExists && existingUser) {
       // User exists, create share record
-      const existingUser = existingUsers[0];
       const { error: shareError } = await supabase
         .from('shared_recordings')
         .insert({
