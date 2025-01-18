@@ -37,9 +37,24 @@ export const TopBar = ({ onSortChange, onViewModeChange, viewMode }: TopBarProps
       if (error) {
         console.error("Error signing out:", error);
         
-        // If the error is due to session not found, we can still redirect the user
-        if (error.message.includes('session_not_found')) {
-          console.log('Session not found, but proceeding with sign out flow');
+        // Parse error body if it exists
+        let errorBody;
+        try {
+          errorBody = typeof error.message === 'string' && error.message.includes('{') 
+            ? JSON.parse(error.message)
+            : null;
+        } catch (e) {
+          console.log('Error parsing error message:', e);
+        }
+
+        // Check both the error message and parsed body for session_not_found
+        const isSessionNotFound = 
+          (errorBody?.code === 'session_not_found') ||
+          (error.message?.includes('session_not_found')) ||
+          (errorBody?.message?.includes('session_not_found'));
+        
+        if (isSessionNotFound) {
+          console.log('Session not found, proceeding with sign out flow');
           toast.success("Signed out successfully");
           navigate("/landing");
           return;
