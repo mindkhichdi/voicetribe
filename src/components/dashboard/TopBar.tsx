@@ -23,20 +23,40 @@ interface TopBarProps {
 export const TopBar = ({ onSortChange, onViewModeChange, viewMode }: TopBarProps) => {
   const navigate = useNavigate();
   const supabase = useSupabaseClient();
+  const [isSigningOut, setIsSigningOut] = useState(false);
 
   const handleSignOut = async () => {
+    if (isSigningOut) return; // Prevent multiple clicks
+    
+    setIsSigningOut(true);
+    console.log('Starting sign out process...');
+    
     try {
       const { error } = await supabase.auth.signOut();
+      
       if (error) {
         console.error("Error signing out:", error);
+        
+        // If the error is due to session not found, we can still redirect the user
+        if (error.message.includes('session_not_found')) {
+          console.log('Session not found, but proceeding with sign out flow');
+          toast.success("Signed out successfully");
+          navigate("/landing");
+          return;
+        }
+        
         toast.error("Failed to sign out");
         return;
       }
+      
+      console.log('Sign out successful');
       toast.success("Signed out successfully");
       navigate("/landing");
     } catch (error) {
       console.error("Error in handleSignOut:", error);
       toast.error("Failed to sign out");
+    } finally {
+      setIsSigningOut(false);
     }
   };
 
@@ -77,7 +97,13 @@ export const TopBar = ({ onSortChange, onViewModeChange, viewMode }: TopBarProps
               <List className="h-4 w-4" />
             )}
           </Button>
-          <Button variant="ghost" size="icon" onClick={handleSignOut} className="hover:bg-purple-soft/50">
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={handleSignOut} 
+            className="hover:bg-purple-soft/50"
+            disabled={isSigningOut}
+          >
             <LogOut className="h-4 w-4" />
           </Button>
         </div>
