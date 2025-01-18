@@ -3,6 +3,7 @@ import { useSupabaseClient, useUser } from '@supabase/auth-helpers-react';
 import { toast } from 'sonner';
 import { Button } from './ui/button';
 import { X } from 'lucide-react';
+import Lottie from 'lottie-react';
 
 interface VoiceRecorderProps {
   onRecordingComplete: (recording: any) => void;
@@ -132,6 +133,14 @@ export const VoiceRecorder = ({ onRecordingComplete }: VoiceRecorderProps) => {
             <X className="h-4 w-4" />
             <span className="ml-2">Cancel</span>
           </Button>
+
+          <div className="w-24 h-12">
+            <Lottie
+              animationData="https://lottie.host/85d7b350-b75b-4d80-b944-8ce0fce46e15/kpyqQMqmkD.lottie"
+              loop={true}
+              autoplay={true}
+            />
+          </div>
 
           <Button
             variant="default"
