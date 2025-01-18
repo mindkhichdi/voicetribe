@@ -30,7 +30,6 @@ export const VoiceRecorder = ({ onRecordingComplete }: VoiceRecorderProps) => {
       mediaRecorder.current.onstop = async () => {
         const audioBlob = new Blob(audioChunks.current, { type: 'audio/webm' });
         setAudioBlob(audioBlob);
-        await processRecording(audioBlob);
       };
 
       mediaRecorder.current.start();
@@ -41,11 +40,23 @@ export const VoiceRecorder = ({ onRecordingComplete }: VoiceRecorderProps) => {
     }
   };
 
-  const stopRecording = () => {
+  const stopRecording = async (shouldSave: boolean = true) => {
     if (mediaRecorder.current && isRecording) {
       mediaRecorder.current.stop();
       mediaRecorder.current.stream.getTracks().forEach(track => track.stop());
       setIsRecording(false);
+
+      if (shouldSave) {
+        // Wait for the ondataavailable event to finish
+        await new Promise(resolve => setTimeout(resolve, 100));
+        const audioBlob = new Blob(audioChunks.current, { type: 'audio/webm' });
+        await processRecording(audioBlob);
+      } else {
+        // Clear the audio chunks and blob if we're canceling
+        audioChunks.current = [];
+        setAudioBlob(null);
+        toast.info('Recording cancelled');
+      }
     }
   };
 
@@ -123,10 +134,7 @@ export const VoiceRecorder = ({ onRecordingComplete }: VoiceRecorderProps) => {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => {
-              stopRecording();
-              setAudioBlob(null);
-            }}
+            onClick={() => stopRecording(false)}
             className="text-purple hover:text-purple-vivid"
           >
             <X className="h-4 w-4" />
@@ -136,7 +144,7 @@ export const VoiceRecorder = ({ onRecordingComplete }: VoiceRecorderProps) => {
           <Button
             variant="default"
             size="sm"
-            onClick={stopRecording}
+            onClick={() => stopRecording(true)}
             className="bg-purple hover:bg-purple-vivid text-white"
           >
             Stop recording
