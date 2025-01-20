@@ -6,7 +6,7 @@ import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Textarea } from '../ui/textarea';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../ui/dropdown-menu';
-import { Copy, Download, MoreVertical, Share2, Trash2, Pencil, Check, X, Image as ImageIcon, StickyNote } from 'lucide-react';
+import { Copy, Download, MoreVertical, Share2, Trash2, Pencil, Check, X, Image as ImageIcon, StickyNote, Tag } from 'lucide-react';
 import { useSupabaseClient } from '@supabase/auth-helpers-react';
 import { toast } from 'sonner';
 
@@ -18,6 +18,7 @@ interface Recording {
   title?: string;
   notes?: string;
   image_url?: string;
+  tags?: string[];
 }
 
 interface RecordingCardProps {
@@ -47,9 +48,10 @@ export const RecordingCard = ({
   const [editedTitle, setEditedTitle] = useState(recording.title || `Recording ${index + 1}`);
   const [isEditingNotes, setIsEditingNotes] = useState(false);
   const [notes, setNotes] = useState(recording.notes || '');
+  const [newTag, setNewTag] = useState('');
   const supabase = useSupabaseClient();
   const isPlaying = currentlyPlaying === index;
-  
+
   const formattedDate = new Date(recording.created_at).toLocaleDateString('en-US', {
     month: 'short',
     day: 'numeric',
@@ -161,6 +163,43 @@ export const RecordingCard = ({
     }
   };
 
+  const handleAddTag = async (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && newTag.trim()) {
+      try {
+        const updatedTags = [...(recording.tags || []), newTag.trim()];
+        const { error } = await supabase
+          .from('recordings')
+          .update({ tags: updatedTags })
+          .eq('id', recording.id);
+
+        if (error) throw error;
+        
+        toast.success('Tag added successfully');
+        setNewTag('');
+      } catch (error) {
+        console.error('Error adding tag:', error);
+        toast.error('Failed to add tag');
+      }
+    }
+  };
+
+  const handleRemoveTag = async (tagToRemove: string) => {
+    try {
+      const updatedTags = (recording.tags || []).filter(tag => tag !== tagToRemove);
+      const { error } = await supabase
+        .from('recordings')
+        .update({ tags: updatedTags })
+        .eq('id', recording.id);
+
+      if (error) throw error;
+      
+      toast.success('Tag removed successfully');
+    } catch (error) {
+      console.error('Error removing tag:', error);
+      toast.error('Failed to remove tag');
+    }
+  };
+
   return (
     <div className="glass rounded-lg p-4 hover:shadow-md transition-shadow duration-200">
       <div className="flex items-center justify-between">
@@ -170,6 +209,33 @@ export const RecordingCard = ({
             <span className="text-sm text-gray-500">{formattedDate}</span>
             <span className="text-sm text-gray-500">00:03</span>
           </div>
+
+          {/* Tags Section */}
+          <div className="flex flex-wrap gap-2 mb-2">
+            {recording.tags?.map((tag) => (
+              <Badge
+                key={tag}
+                variant="outline"
+                className="flex items-center gap-1 cursor-pointer hover:bg-purple-soft/50"
+                onClick={() => !isShared && handleRemoveTag(tag)}
+              >
+                <Tag className="h-3 w-3" />
+                {tag}
+                {!isShared && <X className="h-3 w-3 ml-1" />}
+              </Badge>
+            ))}
+            {!isShared && (
+              <Input
+                type="text"
+                value={newTag}
+                onChange={(e) => setNewTag(e.target.value)}
+                onKeyDown={handleAddTag}
+                placeholder="Add tag..."
+                className="w-24 h-6 text-sm"
+              />
+            )}
+          </div>
+
           {isEditing ? (
             <div className="flex items-center gap-2">
               <Input

@@ -41,6 +41,7 @@ export type Database = {
           id: string
           image_url: string | null
           notes: string | null
+          tags: string[] | null
           timestamp: string
           title: string | null
           user_id: string
@@ -52,6 +53,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           notes?: string | null
+          tags?: string[] | null
           timestamp?: string
           title?: string | null
           user_id: string
@@ -63,6 +65,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           notes?: string | null
+          tags?: string[] | null
           timestamp?: string
           title?: string | null
           user_id?: string

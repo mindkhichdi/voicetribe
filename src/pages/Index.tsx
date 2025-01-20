@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { TopBar, type SortOption, type ViewMode } from "@/components/dashboard/TopBar";
 import { RecordingsList } from "@/components/dashboard/RecordingsList";
 import { VoiceRecorder } from "@/components/VoiceRecorder";
+import { TagsFilter } from '@/components/dashboard/TagsFilter';
 
 const Index = () => {
   const session = useSession();
@@ -17,6 +18,27 @@ const Index = () => {
   const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
   const [sortOption, setSortOption] = useState<SortOption>('recent');
   const [viewMode, setViewMode] = useState<ViewMode>('list');
+  const [selectedTag, setSelectedTag] = useState<string | null>(null);
+
+  // Get unique tags from all recordings
+  const allTags = useMemo(() => {
+    const tagsSet = new Set<string>();
+    [...recordings, ...sharedRecordings].forEach(recording => {
+      recording.tags?.forEach(tag => tagsSet.add(tag));
+    });
+    return Array.from(tagsSet);
+  }, [recordings, sharedRecordings]);
+
+  // Filter recordings based on selected tag
+  const filteredRecordings = useMemo(() => {
+    if (!selectedTag) return recordings;
+    return recordings.filter(recording => recording.tags?.includes(selectedTag));
+  }, [recordings, selectedTag]);
+
+  const filteredSharedRecordings = useMemo(() => {
+    if (!selectedTag) return sharedRecordings;
+    return sharedRecordings.filter(recording => recording.tags?.includes(selectedTag));
+  }, [sharedRecordings, selectedTag]);
 
   const sortRecordings = (recordings: any[], sort: SortOption) => {
     return [...recordings].sort((a, b) => {
@@ -204,9 +226,15 @@ const Index = () => {
           viewMode={viewMode}
         />
         
+        <TagsFilter
+          tags={allTags}
+          selectedTag={selectedTag}
+          onTagSelect={setSelectedTag}
+        />
+        
         <div className="space-y-8">
           <RecordingsList
-            recordings={recordings}
+            recordings={filteredRecordings}
             currentlyPlaying={currentlyPlaying}
             playbackSpeed={playbackSpeed}
             onPlay={handlePlay}
@@ -216,9 +244,9 @@ const Index = () => {
             viewMode={viewMode}
           />
 
-          {sharedRecordings.length > 0 && (
+          {filteredSharedRecordings.length > 0 && (
             <RecordingsList
-              recordings={sharedRecordings}
+              recordings={filteredSharedRecordings}
               currentlyPlaying={currentlyPlaying}
               playbackSpeed={playbackSpeed}
               onPlay={handlePlay}
