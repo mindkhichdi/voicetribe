@@ -78,7 +78,8 @@ const Index = () => {
       </div>
 
       <VoiceRecorder onRecordingComplete={(newRecording) => {
-        setRecordings(prev => sortRecordings([newRecording, ...prev], sortOption));
+        // This will be handled by the useRecordingsManager hook
+        console.log('New recording created:', newRecording);
       }} />
     </div>
   );

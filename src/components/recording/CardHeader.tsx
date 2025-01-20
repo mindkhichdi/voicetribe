@@ -1,5 +1,7 @@
 import React from 'react';
 import { Badge } from '../ui/badge';
+import { Tag, X } from 'lucide-react';
+import { Input } from '../ui/input';
 
 interface CardHeaderProps {
   formattedDate: string;
