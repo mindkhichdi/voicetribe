@@ -4,8 +4,9 @@ import { ShareDialog } from '../recording/ShareDialog';
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
+import { Textarea } from '../ui/textarea';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../ui/dropdown-menu';
-import { Copy, Download, MoreVertical, Share2, Trash2, Pencil, Check, X } from 'lucide-react';
+import { Copy, Download, MoreVertical, Share2, Trash2, Pencil, Check, X, Image as ImageIcon, StickyNote } from 'lucide-react';
 import { useSupabaseClient } from '@supabase/auth-helpers-react';
 import { toast } from 'sonner';
 
@@ -15,6 +16,8 @@ interface Recording {
   created_at: string;
   description?: string;
   title?: string;
+  notes?: string;
+  image_url?: string;
 }
 
 interface RecordingCardProps {
@@ -42,6 +45,8 @@ export const RecordingCard = ({
 }: RecordingCardProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editedTitle, setEditedTitle] = useState(recording.title || `Recording ${index + 1}`);
+  const [isEditingNotes, setIsEditingNotes] = useState(false);
+  const [notes, setNotes] = useState(recording.notes || '');
   const supabase = useSupabaseClient();
   const isPlaying = currentlyPlaying === index;
   
@@ -69,6 +74,55 @@ export const RecordingCard = ({
     } catch (error) {
       console.error('Error updating title:', error);
       toast.error('Failed to update title');
+    }
+  };
+
+  const handleSaveNotes = async () => {
+    try {
+      const { error } = await supabase
+        .from('recordings')
+        .update({ notes })
+        .eq('id', recording.id);
+
+      if (error) throw error;
+      
+      toast.success('Notes saved successfully');
+      setIsEditingNotes(false);
+    } catch (error) {
+      console.error('Error saving notes:', error);
+      toast.error('Failed to save notes');
+    }
+  };
+
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    try {
+      const file = event.target.files?.[0];
+      if (!file) return;
+
+      const fileExt = file.name.split('.').pop();
+      const filePath = `${recording.id}-${Math.random()}.${fileExt}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('recordings')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('recordings')
+        .getPublicUrl(filePath);
+
+      const { error: updateError } = await supabase
+        .from('recordings')
+        .update({ image_url: publicUrl })
+        .eq('id', recording.id);
+
+      if (updateError) throw updateError;
+
+      toast.success('Image uploaded successfully');
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      toast.error('Failed to upload image');
     }
   };
 
@@ -110,7 +164,7 @@ export const RecordingCard = ({
   return (
     <div className="glass rounded-lg p-4 hover:shadow-md transition-shadow duration-200">
       <div className="flex items-center justify-between">
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-2 w-full">
           <div className="flex items-center gap-2">
             <Badge variant="secondary" className="text-xs bg-purple-soft text-purple-vivid">NEW</Badge>
             <span className="text-sm text-gray-500">{formattedDate}</span>
@@ -149,7 +203,71 @@ export const RecordingCard = ({
             </div>
           )}
           <p className="text-sm text-gray-500">{recording.description || 'No transcription available'}</p>
+          
+          {/* Notes Section */}
+          <div className="mt-2">
+            {isEditingNotes ? (
+              <div className="space-y-2">
+                <Textarea
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                  placeholder="Add notes..."
+                  className="min-h-[100px]"
+                />
+                <div className="flex gap-2">
+                  <Button size="sm" onClick={handleSaveNotes}>Save Notes</Button>
+                  <Button size="sm" variant="ghost" onClick={() => {
+                    setNotes(recording.notes || '');
+                    setIsEditingNotes(false);
+                  }}>Cancel</Button>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {recording.notes && <p className="text-sm">{recording.notes}</p>}
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => setIsEditingNotes(true)}
+                  className="flex items-center gap-2"
+                >
+                  <StickyNote className="h-4 w-4" />
+                  {recording.notes ? 'Edit Notes' : 'Add Notes'}
+                </Button>
+              </div>
+            )}
+          </div>
+
+          {/* Image Section */}
+          <div className="mt-2">
+            {recording.image_url && (
+              <img
+                src={recording.image_url}
+                alt="Recording attachment"
+                className="max-w-xs rounded-lg mb-2"
+              />
+            )}
+            <label className="cursor-pointer">
+              <Button
+                size="sm"
+                variant="ghost"
+                className="flex items-center gap-2"
+                onClick={() => document.getElementById(`image-upload-${recording.id}`)?.click()}
+              >
+                <ImageIcon className="h-4 w-4" />
+                {recording.image_url ? 'Change Image' : 'Add Image'}
+              </Button>
+              <input
+                type="file"
+                id={`image-upload-${recording.id}`}
+                className="hidden"
+                accept="image/*"
+                onChange={handleImageUpload}
+              />
+            </label>
+          </div>
         </div>
+
         <div className="flex items-center gap-2">
           <PlaybackButtons
             isPlaying={isPlaying}
