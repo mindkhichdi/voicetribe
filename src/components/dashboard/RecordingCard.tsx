@@ -163,42 +163,33 @@ export const RecordingCard = ({
 
   return (
     <div className="glass rounded-lg p-4 hover:shadow-md transition-shadow duration-200">
-      <div className="flex items-start justify-between">
+      <div className="flex items-center justify-between">
         <div className="flex flex-col gap-2 w-full">
           <div className="flex items-center gap-2">
             <Badge variant="secondary" className="text-xs bg-purple-soft text-purple-vivid">NEW</Badge>
             <span className="text-sm text-gray-500">{formattedDate}</span>
             <span className="text-sm text-gray-500">00:03</span>
           </div>
-          
-          <div className="flex items-center justify-between">
-            <div className="flex-1">
-              {isEditing ? (
-                <div className="flex items-center gap-2">
-                  <Input
-                    value={editedTitle}
-                    onChange={(e) => setEditedTitle(e.target.value)}
-                    className="text-lg font-semibold"
-                    autoFocus
-                  />
-                  <Button size="icon" variant="ghost" onClick={handleSaveTitle} className="h-8 w-8">
-                    <Check className="h-4 w-4" />
-                  </Button>
-                  <Button size="icon" variant="ghost" onClick={handleCancelEdit} className="h-8 w-8">
-                    <X className="h-4 w-4" />
-                  </Button>
-                </div>
-              ) : (
-                <div className="flex items-center gap-2">
-                  <h3 className="text-lg font-semibold text-purple-dark dark:text-purple-light">
-                    {recording.title || `Recording ${index + 1}`}
-                  </h3>
-                </div>
-              )}
+          {isEditing ? (
+            <div className="flex items-center gap-2">
+              <Input
+                value={editedTitle}
+                onChange={(e) => setEditedTitle(e.target.value)}
+                className="text-lg font-semibold"
+                autoFocus
+              />
+              <Button size="icon" variant="ghost" onClick={handleSaveTitle} className="h-8 w-8">
+                <Check className="h-4 w-4" />
+              </Button>
+              <Button size="icon" variant="ghost" onClick={handleCancelEdit} className="h-8 w-8">
+                <X className="h-4 w-4" />
+              </Button>
             </div>
-            
-            {/* Controls group with drop shadow */}
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg shadow-md bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm">
+          ) : (
+            <div className="flex items-center gap-2">
+              <h3 className="text-lg font-semibold text-purple-dark dark:text-purple-light">
+                {recording.title || `Recording ${index + 1}`}
+              </h3>
               {!isShared && (
                 <Button
                   size="icon"
@@ -209,71 +200,72 @@ export const RecordingCard = ({
                   <Pencil className="h-4 w-4" />
                 </Button>
               )}
-              <Button
-                size="icon"
-                variant="ghost"
-                onClick={() => setIsEditingNotes(true)}
-                className="h-8 w-8 hover:bg-purple-soft/50"
-              >
-                <StickyNote className="h-4 w-4" />
-              </Button>
-              <label className="cursor-pointer">
-                <Button
-                  size="icon"
-                  variant="ghost"
-                  className="h-8 w-8 hover:bg-purple-soft/50"
-                  onClick={() => document.getElementById(`image-upload-${recording.id}`)?.click()}
-                >
-                  <ImageIcon className="h-4 w-4" />
-                </Button>
-                <input
-                  type="file"
-                  id={`image-upload-${recording.id}`}
-                  className="hidden"
-                  accept="image/*"
-                  onChange={handleImageUpload}
-                />
-              </label>
             </div>
-          </div>
-
+          )}
           <p className="text-sm text-gray-500">{recording.description || 'No transcription available'}</p>
           
           {/* Notes Section */}
-          {(isEditingNotes || recording.notes) && (
-            <div className="mt-2 space-y-2">
-              {isEditingNotes ? (
-                <div className="space-y-2">
-                  <Textarea
-                    value={notes}
-                    onChange={(e) => setNotes(e.target.value)}
-                    placeholder="Add notes..."
-                    className="min-h-[100px]"
-                  />
-                  <div className="flex gap-2">
-                    <Button size="sm" onClick={handleSaveNotes}>Save Notes</Button>
-                    <Button size="sm" variant="ghost" onClick={() => {
-                      setNotes(recording.notes || '');
-                      setIsEditingNotes(false);
-                    }}>Cancel</Button>
-                  </div>
+          <div className="mt-2">
+            {isEditingNotes ? (
+              <div className="space-y-2">
+                <Textarea
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                  placeholder="Add notes..."
+                  className="min-h-[100px]"
+                />
+                <div className="flex gap-2">
+                  <Button size="sm" onClick={handleSaveNotes}>Save Notes</Button>
+                  <Button size="sm" variant="ghost" onClick={() => {
+                    setNotes(recording.notes || '');
+                    setIsEditingNotes(false);
+                  }}>Cancel</Button>
                 </div>
-              ) : (
-                recording.notes && <p className="text-sm">{recording.notes}</p>
-              )}
-            </div>
-          )}
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {recording.notes && <p className="text-sm">{recording.notes}</p>}
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => setIsEditingNotes(true)}
+                  className="flex items-center gap-2"
+                >
+                  <StickyNote className="h-4 w-4" />
+                  {recording.notes ? 'Edit Notes' : 'Add Notes'}
+                </Button>
+              </div>
+            )}
+          </div>
 
           {/* Image Section */}
-          {recording.image_url && (
-            <div className="mt-2">
+          <div className="mt-2">
+            {recording.image_url && (
               <img
                 src={recording.image_url}
                 alt="Recording attachment"
-                className="max-w-xs rounded-lg"
+                className="max-w-xs rounded-lg mb-2"
               />
-            </div>
-          )}
+            )}
+            <label className="cursor-pointer">
+              <Button
+                size="sm"
+                variant="ghost"
+                className="flex items-center gap-2"
+                onClick={() => document.getElementById(`image-upload-${recording.id}`)?.click()}
+              >
+                <ImageIcon className="h-4 w-4" />
+                {recording.image_url ? 'Change Image' : 'Add Image'}
+              </Button>
+              <input
+                type="file"
+                id={`image-upload-${recording.id}`}
+                className="hidden"
+                accept="image/*"
+                onChange={handleImageUpload}
+              />
+            </label>
+          </div>
         </div>
 
         <div className="flex items-center gap-2">
