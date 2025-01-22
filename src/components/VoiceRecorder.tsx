@@ -2,7 +2,7 @@ import React, { useState, useRef } from 'react';
 import { useSupabaseClient, useUser } from '@supabase/auth-helpers-react';
 import { toast } from 'sonner';
 import { Button } from './ui/button';
-import { X } from 'lucide-react';
+import { X, RotateCcw } from 'lucide-react';
 
 interface VoiceRecorderProps {
   onRecordingComplete: (recording: any) => void;
@@ -12,10 +12,18 @@ export const VoiceRecorder = ({ onRecordingComplete }: VoiceRecorderProps) => {
   const [isRecording, setIsRecording] = useState(false);
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [recordingTime, setRecordingTime] = useState(0);
   const mediaRecorder = useRef<MediaRecorder | null>(null);
   const audioChunks = useRef<Blob[]>([]);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
   const supabase = useSupabaseClient();
   const user = useUser();
+
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
 
   const startRecording = async () => {
     try {
@@ -34,6 +42,12 @@ export const VoiceRecorder = ({ onRecordingComplete }: VoiceRecorderProps) => {
 
       mediaRecorder.current.start();
       setIsRecording(true);
+      setRecordingTime(0);
+      
+      // Start timer
+      timerRef.current = setInterval(() => {
+        setRecordingTime(prev => prev + 1);
+      }, 1000);
     } catch (error) {
       console.error('Error starting recording:', error);
       toast.error('Failed to start recording');
@@ -46,15 +60,20 @@ export const VoiceRecorder = ({ onRecordingComplete }: VoiceRecorderProps) => {
       mediaRecorder.current.stream.getTracks().forEach(track => track.stop());
       setIsRecording(false);
 
+      // Clear timer
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
+
       if (shouldSave) {
-        // Wait for the ondataavailable event to finish
         await new Promise(resolve => setTimeout(resolve, 100));
         const audioBlob = new Blob(audioChunks.current, { type: 'audio/webm' });
         await processRecording(audioBlob);
       } else {
-        // Clear the audio chunks and blob if we're canceling
         audioChunks.current = [];
         setAudioBlob(null);
+        setRecordingTime(0);
         toast.info('Recording cancelled');
       }
     }
@@ -130,25 +149,53 @@ export const VoiceRecorder = ({ onRecordingComplete }: VoiceRecorderProps) => {
           start recording
         </Button>
       ) : (
-        <div className="bg-white dark:bg-gray-900 p-4 rounded-lg shadow-lg flex items-center space-x-4 animate-fade-in">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => stopRecording(false)}
-            className="text-purple hover:text-purple-vivid"
-          >
-            <X className="h-4 w-4" />
-            <span className="ml-2">Cancel</span>
-          </Button>
+        <div className="bg-purple rounded-xl p-6 w-96 text-white shadow-lg animate-fade-in">
+          <div className="flex flex-col items-center space-y-4">
+            <div className="text-4xl font-bold font-display">
+              {formatTime(recordingTime)}
+            </div>
+            
+            <div className="text-center space-y-1">
+              <h3 className="text-lg font-semibold">Not sure what to say?</h3>
+              <p className="text-sm text-purple-light">
+                Try talking about your plans for today.<br />
+                Don't be afraid to ramble!
+              </p>
+            </div>
 
-          <Button
-            variant="default"
-            size="sm"
-            onClick={() => stopRecording(true)}
-            className="bg-purple hover:bg-purple-vivid text-white"
-          >
-            Stop recording
-          </Button>
+            <div className="w-full h-16 relative overflow-hidden">
+              <div className="waveform absolute inset-0"></div>
+            </div>
+
+            <div className="flex items-center space-x-4">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => stopRecording(false)}
+                className="rounded-full hover:bg-purple-light/20"
+              >
+                <RotateCcw className="h-6 w-6" />
+              </Button>
+
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => stopRecording(true)}
+                className="rounded-full w-12 h-12 border-2 border-white hover:bg-purple-light/20"
+              >
+                <div className="w-4 h-4 bg-white rounded-sm" />
+              </Button>
+
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => stopRecording(false)}
+                className="rounded-full hover:bg-purple-light/20"
+              >
+                <X className="h-6 w-6" />
+              </Button>
+            </div>
+          </div>
         </div>
       )}
     </div>
