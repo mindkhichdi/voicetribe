@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useSupabaseClient } from '@supabase/auth-helpers-react';
 import { toast } from 'sonner';
 import { SortOption } from '@/components/dashboard/TopBar';
@@ -9,7 +9,6 @@ export const useRecordingsManager = (userId: string | undefined) => {
   const [sharedRecordings, setSharedRecordings] = useState<any[]>([]);
   const [currentlyPlaying, setCurrentlyPlaying] = useState<number | null>(null);
   const [playbackSpeed, setPlaybackSpeed] = useState(1);
-  const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
   const [sortOption, setSortOption] = useState<SortOption>('recent');
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
 
@@ -48,97 +47,78 @@ export const useRecordingsManager = (userId: string | undefined) => {
     });
   };
 
-  useEffect(() => {
+  const fetchRecordings = useCallback(async () => {
     if (!userId) return;
 
-    const fetchRecordings = async () => {
-      try {
-        console.log('Fetching recordings for user:', userId);
-        
-        const { data: ownRecordings, error: ownError } = await supabase
-          .from("recordings")
-          .select("*")
-          .eq("user_id", userId)
-          .order("created_at", { ascending: false });
+    try {
+      console.log('Fetching recordings for user:', userId);
+      
+      const { data: ownRecordings, error: ownError } = await supabase
+        .from("recordings")
+        .select("*")
+        .eq("user_id", userId)
+        .order("created_at", { ascending: false });
 
-        if (ownError) {
-          console.error("Error fetching recordings:", ownError);
-          toast.error("Failed to fetch recordings");
-          return;
-        }
-
-        const { data: shared, error: sharedError } = await supabase
-          .from("shared_recordings")
-          .select(`
-            recording_id,
-            recordings (
-              id,
-              blob_url,
-              created_at,
-              title,
-              description
-            )
-          `)
-          .eq("shared_with_id", userId);
-
-        if (sharedError) {
-          console.error("Error fetching shared recordings:", sharedError);
-          toast.error("Failed to fetch shared recordings");
-          return;
-        }
-
-        const transformedShared = shared
-          .filter(item => item.recordings)
-          .map(item => ({
-            ...item.recordings,
-          }));
-
-        console.log('Fetched recordings:', ownRecordings);
-        console.log('Fetched shared recordings:', transformedShared);
-        
-        const sortedOwnRecordings = sortRecordings(ownRecordings || [], sortOption);
-        const sortedSharedRecordings = sortRecordings(transformedShared || [], sortOption);
-        
-        setRecordings(sortedOwnRecordings);
-        setSharedRecordings(sortedSharedRecordings);
-      } catch (error) {
-        console.error("Error in fetchRecordings:", error);
+      if (ownError) {
+        console.error("Error fetching recordings:", ownError);
         toast.error("Failed to fetch recordings");
+        return;
       }
-    };
 
-    fetchRecordings();
+      const { data: shared, error: sharedError } = await supabase
+        .from("shared_recordings")
+        .select(`
+          recording_id,
+          recordings (
+            id,
+            blob_url,
+            created_at,
+            title,
+            description
+          )
+        `)
+        .eq("shared_with_id", userId);
+
+      if (sharedError) {
+        console.error("Error fetching shared recordings:", sharedError);
+        toast.error("Failed to fetch shared recordings");
+        return;
+      }
+
+      const transformedShared = shared
+        .filter(item => item.recordings)
+        .map(item => ({
+          ...item.recordings,
+        }));
+
+      console.log('Fetched recordings:', ownRecordings);
+      console.log('Fetched shared recordings:', transformedShared);
+      
+      const sortedOwnRecordings = sortRecordings(ownRecordings || [], sortOption);
+      const sortedSharedRecordings = sortRecordings(transformedShared || [], sortOption);
+      
+      setRecordings(sortedOwnRecordings);
+      setSharedRecordings(sortedSharedRecordings);
+    } catch (error) {
+      console.error("Error in fetchRecordings:", error);
+      toast.error("Failed to fetch recordings");
+    }
   }, [userId, supabase, sortOption]);
 
-  const handlePlay = (url: string, index: number) => {
-    if (audio) {
-      audio.pause();
-      audio.currentTime = 0;
-    }
+  useEffect(() => {
+    fetchRecordings();
+  }, [fetchRecordings]);
 
+  const handlePlay = (url: string, index: number) => {
     if (currentlyPlaying === index) {
       setCurrentlyPlaying(null);
-      setAudio(null);
       return;
     }
-
-    const newAudio = new Audio(url);
-    newAudio.playbackRate = playbackSpeed;
-    newAudio.play();
-    newAudio.onended = () => {
-      setCurrentlyPlaying(null);
-      setAudio(null);
-    };
-    setAudio(newAudio);
     setCurrentlyPlaying(index);
   };
 
   const handleSpeedChange = (value: number[]) => {
-    const newSpeed = value[0];
-    setPlaybackSpeed(newSpeed);
-    if (audio) {
-      audio.playbackRate = newSpeed;
-    }
+    setPlaybackSpeed(value[0]);
   };
 
   const handleDelete = async (id: string) => {
@@ -159,7 +139,7 @@ export const useRecordingsManager = (userId: string | undefined) => {
     }
   };
 
-  const handleTitleUpdate = async (id: string, newTitle: string) => {
+  const handleTitleUpdate = (id: string, newTitle: string) => {
     setRecordings(prevRecordings => {
       const updatedRecordings = prevRecordings.map(recording =>
         recording.id === id ? { ...recording, title: newTitle } : recording
@@ -182,5 +162,6 @@ export const useRecordingsManager = (userId: string | undefined) => {
     handleTitleUpdate,
     setSortOption,
     setSelectedTag,
+    refreshRecordings: fetchRecordings,
   };
 };

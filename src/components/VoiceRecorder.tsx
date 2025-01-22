@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { Button } from './ui/button';
-import { Mic, Square } from 'lucide-react';
+import { Square } from 'lucide-react';
 import { useSupabaseClient } from '@supabase/auth-helpers-react';
 import { toast } from 'sonner';
 
@@ -80,7 +80,7 @@ export const VoiceRecorder = ({ onRecordingComplete }: VoiceRecorderProps) => {
         </Button>
       ) : (
         <div className="flex flex-col items-center gap-2">
-          <div className="glass rounded-full p-4">
+          <div className="glass rounded-full p-4 bg-purple">
             <div className="relative">
               <div className="absolute inset-0 rounded-full bg-red-500 opacity-20 animate-recording-pulse" />
               <Button
