@@ -197,7 +197,7 @@ export const RecordingCard = ({
   };
 
   return (
-    <div className="glass rounded-lg p-4 hover:shadow-md transition-shadow duration-200">
+    <div className="bg-purple text-white rounded-lg p-4 hover:shadow-md transition-shadow duration-200">
       <div className="flex items-center justify-between">
         <div className="flex flex-col gap-2 w-full">
           <CardHeader
@@ -224,7 +224,7 @@ export const RecordingCard = ({
             isShared={isShared}
           />
 
-          <p className="text-sm text-gray-500">{recording.description || 'No transcription available'}</p>
+          <p className="text-sm text-gray-200">{recording.description || 'No transcription available'}</p>
           
           <CardNotes
             isEditingNotes={isEditingNotes}

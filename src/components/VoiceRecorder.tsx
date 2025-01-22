@@ -146,21 +146,13 @@ export const VoiceRecorder = ({ onRecordingComplete }: VoiceRecorderProps) => {
           className="rounded-full bg-purple hover:bg-purple-vivid text-white px-6 animate-float"
           onClick={startRecording}
         >
-          start recording
+          Start recording and bring your ideas to life
         </Button>
       ) : (
         <div className="bg-purple rounded-xl p-6 w-96 text-white shadow-lg animate-fade-in">
           <div className="flex flex-col items-center space-y-4">
             <div className="text-4xl font-bold font-display">
               {formatTime(recordingTime)}
-            </div>
-            
-            <div className="text-center space-y-1">
-              <h3 className="text-lg font-semibold">Not sure what to say?</h3>
-              <p className="text-sm text-purple-light">
-                Try talking about your plans for today.<br />
-                Don't be afraid to ramble!
-              </p>
             </div>
 
             <div className="w-full h-16 relative overflow-hidden">
