@@ -108,6 +108,28 @@ export const useRecordingsManager = (userId: string | undefined) => {
     };
 
     fetchRecordings();
+
+    // Set up real-time subscription for new recordings
+    const channel = supabase
+      .channel('recordings-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'recordings',
+          filter: `user_id=eq.${userId}`,
+        },
+        () => {
+          console.log('Recordings changed, refreshing...');
+          fetchRecordings();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [userId, supabase, sortOption]);
 
   const handlePlay = (url: string, index: number) => {

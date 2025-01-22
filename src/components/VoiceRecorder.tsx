@@ -127,6 +127,7 @@ export const VoiceRecorder = ({ onRecordingComplete }: VoiceRecorderProps) => {
         throw new Error('Failed to save recording');
       }
 
+      console.log('Recording saved successfully:', recordingData);
       onRecordingComplete(recordingData);
       setAudioBlob(null);
       toast.success('Recording saved successfully');
