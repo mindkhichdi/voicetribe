@@ -197,7 +197,7 @@ export const RecordingCard = ({
   };
 
   return (
-    <div className="bg-purple text-white rounded-lg p-4 hover:shadow-md transition-shadow duration-200">
+    <div className="bg-purple text-white rounded-xl p-3 hover:shadow-lg shadow-md transition-all duration-200 max-w-2xl">
       <div className="flex items-center justify-between">
         <div className="flex flex-col gap-2 w-full">
           <CardHeader
