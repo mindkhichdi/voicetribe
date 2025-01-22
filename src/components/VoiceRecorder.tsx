@@ -44,7 +44,6 @@ export const VoiceRecorder = ({ onRecordingComplete }: VoiceRecorderProps) => {
       setIsRecording(true);
       setRecordingTime(0);
       
-      // Start timer
       timerRef.current = setInterval(() => {
         setRecordingTime(prev => prev + 1);
       }, 1000);
@@ -60,7 +59,6 @@ export const VoiceRecorder = ({ onRecordingComplete }: VoiceRecorderProps) => {
       mediaRecorder.current.stream.getTracks().forEach(track => track.stop());
       setIsRecording(false);
 
-      // Clear timer
       if (timerRef.current) {
         clearInterval(timerRef.current);
         timerRef.current = null;

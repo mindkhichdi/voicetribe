@@ -26,6 +26,7 @@ const Index = () => {
     handleTitleUpdate,
     setSortOption,
     setSelectedTag,
+    fetchRecordings,
   } = useRecordingsManager(session?.user?.id);
 
   React.useEffect(() => {
@@ -33,6 +34,11 @@ const Index = () => {
       navigate("/login");
     }
   }, [session, navigate]);
+
+  const handleRecordingComplete = (newRecording: any) => {
+    console.log('New recording created:', newRecording);
+    fetchRecordings(); // Fetch the latest recordings including the new one
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -77,10 +83,7 @@ const Index = () => {
         </div>
       </div>
 
-      <VoiceRecorder onRecordingComplete={(newRecording) => {
-        // This will be handled by the useRecordingsManager hook
-        console.log('New recording created:', newRecording);
-      }} />
+      <VoiceRecorder onRecordingComplete={handleRecordingComplete} />
     </div>
   );
 };

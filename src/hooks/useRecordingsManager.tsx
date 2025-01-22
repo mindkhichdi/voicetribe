@@ -48,64 +48,64 @@ export const useRecordingsManager = (userId: string | undefined) => {
     });
   };
 
+  const fetchRecordings = async () => {
+    try {
+      console.log('Fetching recordings for user:', userId);
+      
+      const { data: ownRecordings, error: ownError } = await supabase
+        .from("recordings")
+        .select("*")
+        .eq("user_id", userId)
+        .order("created_at", { ascending: false });
+
+      if (ownError) {
+        console.error("Error fetching recordings:", ownError);
+        toast.error("Failed to fetch recordings");
+        return;
+      }
+
+      const { data: shared, error: sharedError } = await supabase
+        .from("shared_recordings")
+        .select(`
+          recording_id,
+          recordings (
+            id,
+            blob_url,
+            created_at,
+            title,
+            description
+          )
+        `)
+        .eq("shared_with_id", userId);
+
+      if (sharedError) {
+        console.error("Error fetching shared recordings:", sharedError);
+        toast.error("Failed to fetch shared recordings");
+        return;
+      }
+
+      const transformedShared = shared
+        .filter(item => item.recordings)
+        .map(item => ({
+          ...item.recordings,
+        }));
+
+      console.log('Fetched recordings:', ownRecordings);
+      console.log('Fetched shared recordings:', transformedShared);
+      
+      const sortedOwnRecordings = sortRecordings(ownRecordings || [], sortOption);
+      const sortedSharedRecordings = sortRecordings(transformedShared || [], sortOption);
+      
+      setRecordings(sortedOwnRecordings);
+      setSharedRecordings(sortedSharedRecordings);
+    } catch (error) {
+      console.error("Error in fetchRecordings:", error);
+      toast.error("Failed to fetch recordings");
+    }
+  };
+
   useEffect(() => {
     if (!userId) return;
-
-    const fetchRecordings = async () => {
-      try {
-        console.log('Fetching recordings for user:', userId);
-        
-        const { data: ownRecordings, error: ownError } = await supabase
-          .from("recordings")
-          .select("*")
-          .eq("user_id", userId)
-          .order("created_at", { ascending: false });
-
-        if (ownError) {
-          console.error("Error fetching recordings:", ownError);
-          toast.error("Failed to fetch recordings");
-          return;
-        }
-
-        const { data: shared, error: sharedError } = await supabase
-          .from("shared_recordings")
-          .select(`
-            recording_id,
-            recordings (
-              id,
-              blob_url,
-              created_at,
-              title,
-              description
-            )
-          `)
-          .eq("shared_with_id", userId);
-
-        if (sharedError) {
-          console.error("Error fetching shared recordings:", sharedError);
-          toast.error("Failed to fetch shared recordings");
-          return;
-        }
-
-        const transformedShared = shared
-          .filter(item => item.recordings)
-          .map(item => ({
-            ...item.recordings,
-          }));
-
-        console.log('Fetched recordings:', ownRecordings);
-        console.log('Fetched shared recordings:', transformedShared);
-        
-        const sortedOwnRecordings = sortRecordings(ownRecordings || [], sortOption);
-        const sortedSharedRecordings = sortRecordings(transformedShared || [], sortOption);
-        
-        setRecordings(sortedOwnRecordings);
-        setSharedRecordings(sortedSharedRecordings);
-      } catch (error) {
-        console.error("Error in fetchRecordings:", error);
-        toast.error("Failed to fetch recordings");
-      }
-    };
 
     fetchRecordings();
 
@@ -120,8 +120,8 @@ export const useRecordingsManager = (userId: string | undefined) => {
           table: 'recordings',
           filter: `user_id=eq.${userId}`,
         },
-        () => {
-          console.log('Recordings changed, refreshing...');
+        (payload) => {
+          console.log('Recordings changed, received payload:', payload);
           fetchRecordings();
         }
       )
@@ -204,5 +204,6 @@ export const useRecordingsManager = (userId: string | undefined) => {
     handleTitleUpdate,
     setSortOption,
     setSelectedTag,
+    fetchRecordings,
   };
 };
