@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { useSession, useSupabaseClient } from "@supabase/auth-helpers-react";
 import { Mic, Share2, Users, ArrowRight } from "lucide-react";
 import { toast } from "sonner";
+import VoiceTribeLogo from "@/components/VoiceTribeLogo";
 
 const Landing = () => {
   const navigate = useNavigate();
@@ -30,9 +31,9 @@ const Landing = () => {
       {/* Navigation */}
       <nav className="fixed top-0 w-full glass z-50">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <h2 className="font-display text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">
-            VoiceTribe
-          </h2>
+          <div className="flex items-center">
+            <VoiceTribeLogo />
+          </div>
           <div className="flex gap-4">
             {!session ? (
               <Button
