@@ -5,6 +5,7 @@ import { CardHeader } from '../recording/CardHeader';
 import { CardTitle } from '../recording/CardTitle';
 import { CardNotes } from '../recording/CardNotes';
 import { CardImage } from '../recording/CardImage';
+import { SummarySection } from '../recording/SummarySection';
 import { Button } from '../ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../ui/dropdown-menu';
 import { Copy, Download, MoreVertical, Share2, Trash2 } from 'lucide-react';
@@ -226,6 +227,11 @@ export const RecordingCard = ({
 
           <p className="text-sm text-gray-500">{recording.description || 'No transcription available'}</p>
           
+          <SummarySection 
+            recordingId={recording.id}
+            description={recording.description}
+          />
+
           <CardNotes
             isEditingNotes={isEditingNotes}
             notes={notes}
