@@ -9,14 +9,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { FileText, Mic, PenLine, Users } from 'lucide-react';
 import { CardNotes } from './CardNotes';
 import { SummarySection } from './SummarySection';
-import { Button } from '../ui/button';
 
 interface RecordingModalProps {
   isOpen: boolean;
   onClose: () => void;
   recording: {
     id: string;
-    title: string;
+    title?: string;  // Made optional to match Recording interface
     description?: string;
     notes?: string;
     created_at: string;
@@ -53,7 +52,7 @@ export const RecordingModal = ({
       <DialogContent className="max-w-3xl">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-xl">
-            {recording.title}
+            {recording.title || 'Untitled Recording'}
             <span className="text-sm font-normal text-gray-500">
               {formattedDate}
             </span>
