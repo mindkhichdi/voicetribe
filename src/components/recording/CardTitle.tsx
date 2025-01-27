@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
-import { Pencil, Check, X } from 'lucide-react';
+import { Pencil } from 'lucide-react';
 
 interface CardTitleProps {
   isEditing: boolean;
@@ -12,6 +12,7 @@ interface CardTitleProps {
   onCancelEdit: () => void;
   onStartEdit: () => void;
   isShared?: boolean;
+  onClick?: () => void;
 }
 
 export const CardTitle = ({
@@ -23,37 +24,37 @@ export const CardTitle = ({
   onCancelEdit,
   onStartEdit,
   isShared = false,
+  onClick,
 }: CardTitleProps) => {
   if (isEditing) {
     return (
-      <div className="flex items-center gap-2">
+      <div className="flex gap-2 items-center">
         <Input
+          type="text"
           value={editedTitle}
           onChange={(e) => onEditedTitleChange(e.target.value)}
-          className="text-lg font-semibold"
-          autoFocus
+          className="h-8"
         />
-        <Button size="icon" variant="ghost" onClick={onSaveTitle} className="h-8 w-8">
-          <Check className="h-4 w-4" />
-        </Button>
-        <Button size="icon" variant="ghost" onClick={onCancelEdit} className="h-8 w-8">
-          <X className="h-4 w-4" />
-        </Button>
+        <Button size="sm" onClick={onSaveTitle}>Save</Button>
+        <Button size="sm" variant="ghost" onClick={onCancelEdit}>Cancel</Button>
       </div>
     );
   }
 
   return (
     <div className="flex items-center gap-2">
-      <h3 className="text-lg font-semibold text-purple-dark dark:text-purple-light">
+      <h3 
+        className="text-lg font-semibold cursor-pointer hover:text-purple-600 transition-colors"
+        onClick={onClick}
+      >
         {title}
       </h3>
       {!isShared && (
         <Button
-          size="icon"
           variant="ghost"
+          size="sm"
           onClick={onStartEdit}
-          className="h-8 w-8 hover:bg-purple-soft/50"
+          className="h-6 w-6 p-0"
         >
           <Pencil className="h-4 w-4" />
         </Button>
