@@ -27,12 +27,15 @@ export const SummarySection = ({ recordingId, description }: SummarySectionProps
 
     setIsLoading(true);
     try {
+      console.log('Calling generate-summary function with description:', description.substring(0, 100) + '...');
+      
       const { data, error } = await supabase.functions.invoke('generate-summary', {
         body: { transcription: description }
       });
 
       if (error) throw error;
 
+      console.log('Received summary data:', data);
       setSummaries(data);
       toast.success('Summary generated successfully');
     } catch (error) {

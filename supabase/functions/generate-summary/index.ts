@@ -7,8 +7,9 @@ const corsHeaders = {
 }
 
 serve(async (req) => {
+  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders })
+    return new Response(null, { headers: corsHeaders })
   }
 
   try {
@@ -17,6 +18,8 @@ serve(async (req) => {
     if (!transcription) {
       throw new Error('No transcription provided')
     }
+
+    console.log('Generating summary for transcription:', transcription.substring(0, 100) + '...');
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -40,7 +43,10 @@ serve(async (req) => {
     })
 
     const result = await response.json()
+    console.log('OpenAI API response:', result);
+
     const summaryText = result.choices[0].message.content
+    console.log('Generated summary text:', summaryText);
 
     // Parse the JSON response from GPT
     const summaries = JSON.parse(summaryText)
