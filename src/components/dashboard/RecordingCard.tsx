@@ -123,7 +123,10 @@ export const RecordingCard = ({
 
   return (
     <>
-      <div className="glass rounded-lg p-4 hover:shadow-md transition-shadow duration-200">
+      <div 
+        className="glass rounded-lg p-4 hover:shadow-md transition-shadow duration-200 cursor-pointer"
+        onClick={() => setIsModalOpen(true)}
+      >
         <div className="flex items-center justify-between">
           <div className="flex flex-col gap-2 w-full">
             <CardHeader
@@ -177,13 +180,15 @@ export const RecordingCard = ({
                 setEditedTitle(recording.title || `Recording ${index + 1}`);
                 setIsEditing(false);
               }}
-              onStartEdit={() => setIsEditing(true)}
+              onStartEdit={(e) => {
+                e.stopPropagation();
+                setIsEditing(true);
+              }}
               isShared={isShared}
-              onClick={() => setIsModalOpen(true)}
             />
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
             <PlaybackButtons
               isPlaying={isPlaying}
               playbackSpeed={playbackSpeed}
@@ -217,7 +222,10 @@ export const RecordingCard = ({
                   Download
                 </DropdownMenuItem>
                 {!isShared && (
-                  <DropdownMenuItem className="text-red-600" onClick={() => onDelete(recording.id)}>
+                  <DropdownMenuItem className="text-red-600" onClick={(e) => {
+                    e.stopPropagation();
+                    onDelete(recording.id);
+                  }}>
                     <Trash2 className="h-4 w-4 mr-2" />
                     Delete
                   </DropdownMenuItem>
