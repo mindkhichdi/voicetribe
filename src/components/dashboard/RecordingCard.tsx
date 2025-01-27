@@ -180,7 +180,7 @@ export const RecordingCard = ({
                 setEditedTitle(recording.title || `Recording ${index + 1}`);
                 setIsEditing(false);
               }}
-              onStartEdit={(e) => {
+              onStartEdit={(e: React.MouseEvent) => {
                 e.stopPropagation();
                 setIsEditing(true);
               }}

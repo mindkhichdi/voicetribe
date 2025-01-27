@@ -10,7 +10,7 @@ interface CardTitleProps {
   onEditedTitleChange: (value: string) => void;
   onSaveTitle: () => void;
   onCancelEdit: () => void;
-  onStartEdit: () => void;
+  onStartEdit: (e: React.MouseEvent) => void;
   isShared?: boolean;
   onClick?: () => void;
 }
