@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useSession, useSupabaseClient } from "@supabase/auth-helpers-react";
-import { Mic, Share2, Users, ArrowRight, Check } from "lucide-react";
+import { Mic, Share2, Users, ArrowRight, Check, Clock } from "lucide-react";
 import { toast } from "sonner";
 import VoiceTribeLogo from "@/components/VoiceTribeLogo";
 import {
@@ -35,6 +35,14 @@ const Landing = () => {
   const scrollToSection = (id: string) => {
     const element = document.getElementById(id);
     element?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  const handleFreePlanClick = () => {
+    navigate("/login?action=sign_up");
+  };
+
+  const handleComingSoonClick = () => {
+    toast.info("This plan will be available soon!");
   };
 
   return (
@@ -161,6 +169,8 @@ const Landing = () => {
                 "Share with 2 people",
                 "7-day storage"
               ]}
+              onButtonClick={handleFreePlanClick}
+              buttonText="Get Started"
             />
             <PricingCard
               title="Pro"
@@ -172,6 +182,8 @@ const Landing = () => {
                 "30-day storage",
                 "Priority support"
               ]}
+              onButtonClick={handleComingSoonClick}
+              buttonText="Coming Soon"
               highlighted
             />
             <PricingCard
@@ -184,6 +196,8 @@ const Landing = () => {
                 "Analytics",
                 "API access"
               ]}
+              onButtonClick={handleComingSoonClick}
+              buttonText="Coming Soon"
             />
           </div>
         </div>
@@ -241,12 +255,16 @@ const PricingCard = ({
   title, 
   price, 
   features, 
-  highlighted = false 
+  highlighted = false,
+  buttonText = "Get Started",
+  onButtonClick,
 }: { 
   title: string; 
   price: string; 
   features: string[]; 
   highlighted?: boolean;
+  buttonText?: string;
+  onButtonClick?: () => void;
 }) => (
   <div className={`glass p-8 rounded-xl ${highlighted ? 'retro-border retro-shadow scale-105' : 'border border-purple-light/20'}`}>
     <div className="flex flex-col items-center gap-4">
@@ -268,8 +286,16 @@ const PricingCard = ({
       <Button 
         className={`mt-8 w-full ${highlighted ? 'retro-border hover:retro-shadow' : ''}`}
         variant={highlighted ? "default" : "outline"}
+        onClick={onButtonClick}
       >
-        Get Started
+        {buttonText === "Coming Soon" ? (
+          <div className="flex items-center gap-2">
+            <Clock className="h-4 w-4" />
+            {buttonText}
+          </div>
+        ) : (
+          buttonText
+        )}
       </Button>
     </div>
   </div>
