@@ -155,10 +155,10 @@ export const VoiceRecorder = ({ onRecordingComplete }: VoiceRecorderProps) => {
             </div>
             
             <div className="text-center space-y-1">
-              <h3 className="text-lg font-semibold">Not sure what to say?</h3>
+              <h3 className="text-lg font-semibold">Say Something Awesome!</h3>
               <p className="text-sm text-purple-light">
-                Try talking about your plans for today.<br />
-                Don't be afraid to ramble!
+                What are your plans for today?<br />
+                Don't be shy to express your thoughts!
               </p>
             </div>
 
