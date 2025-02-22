@@ -4,7 +4,7 @@ import { Button } from './ui/button';
 import { Textarea } from './ui/textarea';
 import { useSupabaseClient, useUser } from '@supabase/auth-helpers-react';
 import { toast } from 'sonner';
-import { Loader2 } from 'lucide-react';
+import { Loader2, X } from 'lucide-react';
 
 export const TextToSpeech = ({ onRecordingComplete }: { onRecordingComplete: (recording: any) => void }) => {
   const [text, setText] = useState('');
@@ -73,6 +73,12 @@ export const TextToSpeech = ({ onRecordingComplete }: { onRecordingComplete: (re
     }
   };
 
+  const handleCancel = () => {
+    setText('');
+    setIsGenerating(false);
+    toast.info('Text cleared');
+  };
+
   return (
     <div className="fixed inset-x-0 bottom-0 flex justify-center pb-8">
       <div className="w-full max-w-2xl px-4">
@@ -84,20 +90,30 @@ export const TextToSpeech = ({ onRecordingComplete }: { onRecordingComplete: (re
               placeholder="Enter text to convert to speech..."
               className="w-full h-24 bg-white/10 border-none text-white placeholder:text-white/50 focus:ring-white/30"
             />
-            <Button
-              onClick={generateSpeech}
-              disabled={isGenerating}
-              className="w-full bg-white text-purple hover:bg-white/90"
-            >
-              {isGenerating ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Generating Speech...
-                </>
-              ) : (
-                'Generate Speech'
-              )}
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                onClick={generateSpeech}
+                disabled={isGenerating}
+                className="flex-1 bg-white text-purple hover:bg-white/90"
+              >
+                {isGenerating ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Generating Speech...
+                  </>
+                ) : (
+                  'Generate Speech'
+                )}
+              </Button>
+              <Button
+                onClick={handleCancel}
+                variant="outline"
+                className="border-white text-white hover:bg-white/10"
+              >
+                <X className="h-4 w-4" />
+                Cancel
+              </Button>
+            </div>
           </div>
         </div>
       </div>
