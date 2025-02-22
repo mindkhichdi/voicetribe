@@ -45,9 +45,58 @@ const Landing = () => {
     toast.info("This plan will be available soon!");
   };
 
+  const PricingCard = ({ 
+    title, 
+    price, 
+    features, 
+    highlighted = false,
+    buttonText = "Get Started",
+    onButtonClick,
+  }: { 
+    title: string; 
+    price: string; 
+    features: string[]; 
+    highlighted?: boolean;
+    buttonText?: string;
+    onButtonClick?: () => void;
+  }) => (
+    <div className={`glass p-8 rounded-xl ${highlighted ? 'retro-border retro-shadow scale-105' : 'border border-purple-light/20'}`}>
+      <div className="flex flex-col items-center gap-4">
+        <h3 className="font-display text-2xl font-semibold text-primary">
+          {title}
+        </h3>
+        <div className="flex items-baseline gap-1">
+          <span className="text-4xl font-bold">{price}</span>
+          <span className="text-foreground/60">/month</span>
+        </div>
+        <ul className="mt-8 space-y-4">
+          {features.map((feature) => (
+            <li key={feature} className="flex items-center gap-2">
+              <Check className="h-5 w-5 text-primary" />
+              <span>{feature}</span>
+            </li>
+          ))}
+        </ul>
+        <Button 
+          className={`mt-8 w-full ${highlighted ? 'retro-border hover:retro-shadow' : ''}`}
+          variant={highlighted ? "default" : "outline"}
+          onClick={onButtonClick}
+        >
+          {buttonText === "Coming Soon" ? (
+            <div className="flex items-center gap-2">
+              <Clock className="h-4 w-4" />
+              {buttonText}
+            </div>
+          ) : (
+            buttonText
+          )}
+        </Button>
+      </div>
+    </div>
+  );
+
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4 relative overflow-hidden">
-      {/* Navigation */}
       <nav className="fixed top-0 w-full glass z-50">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
           <div className="flex items-center gap-8">
@@ -98,7 +147,6 @@ const Landing = () => {
         </div>
       </nav>
 
-      {/* Hero Section */}
       <div className="max-w-4xl w-full text-center space-y-12 mt-20">
         <h1 className="text-6xl md:text-8xl font-bold font-display mb-8">
           <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/70">
@@ -129,7 +177,6 @@ const Landing = () => {
         </div>
       </div>
 
-      {/* Features Section */}
       <section id="features" className="py-24 w-full max-w-6xl mx-auto px-4">
         <h2 className="text-4xl md:text-5xl font-display text-center mb-16">
           Features
@@ -153,7 +200,6 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* Pricing Section */}
       <section id="pricing" className="py-24 w-full bg-purple-soft/10">
         <div className="max-w-6xl mx-auto px-4">
           <h2 className="text-4xl md:text-5xl font-display text-center mb-16">
@@ -164,9 +210,9 @@ const Landing = () => {
               title="Free"
               price="$0"
               features={[
-                "5 recordings per month",
+                "Unlimited voice recordings",
+                "1 text-to-speech per month",
                 "Basic audio quality",
-                "Share with 2 people",
                 "7-day storage"
               ]}
               onButtonClick={handleFreePlanClick}
@@ -174,12 +220,12 @@ const Landing = () => {
             />
             <PricingCard
               title="Pro"
-              price="$9"
+              price="$10"
               features={[
-                "Unlimited recordings",
+                "Unlimited voice recordings",
+                "10 text-to-speech per month",
                 "HD audio quality",
-                "Unlimited sharing",
-                "30-day storage",
+                "Unlimited storage",
                 "Priority support"
               ]}
               onButtonClick={handleComingSoonClick}
@@ -190,10 +236,10 @@ const Landing = () => {
               title="Team"
               price="$29"
               features={[
-                "Everything in Pro",
+                "Unlimited voice recordings",
+                "50 text-to-speech per month",
                 "Team collaboration",
-                "Admin controls",
-                "Analytics",
+                "Analytics dashboard",
                 "API access"
               ]}
               onButtonClick={handleComingSoonClick}
@@ -203,7 +249,6 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* FAQ Section */}
       <section className="py-24 w-full max-w-3xl mx-auto px-4">
         <h2 className="text-4xl md:text-5xl font-display text-center mb-16">
           Frequently Asked Questions
@@ -247,56 +292,6 @@ const FeatureCard = ({ icon, title, description }: { icon: React.ReactNode; titl
         {title}
       </h3>
       <p className="text-foreground/80">{description}</p>
-    </div>
-  </div>
-);
-
-const PricingCard = ({ 
-  title, 
-  price, 
-  features, 
-  highlighted = false,
-  buttonText = "Get Started",
-  onButtonClick,
-}: { 
-  title: string; 
-  price: string; 
-  features: string[]; 
-  highlighted?: boolean;
-  buttonText?: string;
-  onButtonClick?: () => void;
-}) => (
-  <div className={`glass p-8 rounded-xl ${highlighted ? 'retro-border retro-shadow scale-105' : 'border border-purple-light/20'}`}>
-    <div className="flex flex-col items-center gap-4">
-      <h3 className="font-display text-2xl font-semibold text-primary">
-        {title}
-      </h3>
-      <div className="flex items-baseline gap-1">
-        <span className="text-4xl font-bold">{price}</span>
-        <span className="text-foreground/60">/month</span>
-      </div>
-      <ul className="mt-8 space-y-4">
-        {features.map((feature) => (
-          <li key={feature} className="flex items-center gap-2">
-            <Check className="h-5 w-5 text-primary" />
-            <span>{feature}</span>
-          </li>
-        ))}
-      </ul>
-      <Button 
-        className={`mt-8 w-full ${highlighted ? 'retro-border hover:retro-shadow' : ''}`}
-        variant={highlighted ? "default" : "outline"}
-        onClick={onButtonClick}
-      >
-        {buttonText === "Coming Soon" ? (
-          <div className="flex items-center gap-2">
-            <Clock className="h-4 w-4" />
-            {buttonText}
-          </div>
-        ) : (
-          buttonText
-        )}
-      </Button>
     </div>
   </div>
 );

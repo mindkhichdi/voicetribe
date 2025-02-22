@@ -8,7 +8,7 @@ import {
   DialogDescription,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Check } from 'lucide-react';
+import { Check, Mic, Type } from 'lucide-react';
 
 interface PricingDialogProps {
   open: boolean;
@@ -32,11 +32,19 @@ export const PricingDialog = ({ open, onClose }: PricingDialogProps) => {
             <ul className="space-y-2">
               <li className="flex items-center">
                 <Check className="h-4 w-4 mr-2 text-green-500" />
-                Unlimited voice recordings
+                <div>
+                  <span className="flex items-center gap-1">
+                    <Mic className="h-4 w-4" /> Unlimited recordings
+                  </span>
+                </div>
               </li>
               <li className="flex items-center">
                 <Check className="h-4 w-4 mr-2 text-green-500" />
-                1 text-to-speech/month
+                <div>
+                  <span className="flex items-center gap-1">
+                    <Type className="h-4 w-4" /> 1 text-to-speech/month
+                  </span>
+                </div>
               </li>
             </ul>
             <Button className="w-full" variant="outline" disabled>
@@ -49,11 +57,19 @@ export const PricingDialog = ({ open, onClose }: PricingDialogProps) => {
             <ul className="space-y-2">
               <li className="flex items-center">
                 <Check className="h-4 w-4 mr-2 text-green-500" />
-                Unlimited voice recordings
+                <div>
+                  <span className="flex items-center gap-1">
+                    <Mic className="h-4 w-4" /> Unlimited recordings
+                  </span>
+                </div>
               </li>
               <li className="flex items-center">
                 <Check className="h-4 w-4 mr-2 text-green-500" />
-                10 text-to-speech/month
+                <div>
+                  <span className="flex items-center gap-1">
+                    <Type className="h-4 w-4" /> 10 text-to-speech/month
+                  </span>
+                </div>
               </li>
             </ul>
             <Button className="w-full">Upgrade to Pro</Button>
@@ -64,11 +80,19 @@ export const PricingDialog = ({ open, onClose }: PricingDialogProps) => {
             <ul className="space-y-2">
               <li className="flex items-center">
                 <Check className="h-4 w-4 mr-2 text-green-500" />
-                Unlimited voice recordings
+                <div>
+                  <span className="flex items-center gap-1">
+                    <Mic className="h-4 w-4" /> Unlimited recordings
+                  </span>
+                </div>
               </li>
               <li className="flex items-center">
                 <Check className="h-4 w-4 mr-2 text-green-500" />
-                50 text-to-speech/month
+                <div>
+                  <span className="flex items-center gap-1">
+                    <Type className="h-4 w-4" /> 50 text-to-speech/month
+                  </span>
+                </div>
               </li>
             </ul>
             <Button className="w-full">Upgrade to Team</Button>
