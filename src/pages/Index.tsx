@@ -110,7 +110,10 @@ const Index = () => {
       {inputMode === 'voice' ? (
         <VoiceRecorder onRecordingComplete={handleRecordingComplete} />
       ) : (
-        <TextToSpeech onRecordingComplete={handleRecordingComplete} />
+        <TextToSpeech 
+          onRecordingComplete={handleRecordingComplete} 
+          onCancel={() => setInputMode('voice')}
+        />
       )}
     </div>
   );

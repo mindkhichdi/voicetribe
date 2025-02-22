@@ -6,7 +6,13 @@ import { useSupabaseClient, useUser } from '@supabase/auth-helpers-react';
 import { toast } from 'sonner';
 import { Loader2, X } from 'lucide-react';
 
-export const TextToSpeech = ({ onRecordingComplete }: { onRecordingComplete: (recording: any) => void }) => {
+export const TextToSpeech = ({ 
+  onRecordingComplete,
+  onCancel
+}: { 
+  onRecordingComplete: (recording: any) => void;
+  onCancel: () => void;
+}) => {
   const [text, setText] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const supabase = useSupabaseClient();
@@ -73,12 +79,6 @@ export const TextToSpeech = ({ onRecordingComplete }: { onRecordingComplete: (re
     }
   };
 
-  const handleCancel = () => {
-    setText('');
-    setIsGenerating(false);
-    toast.info('Text cleared');
-  };
-
   return (
     <div className="fixed inset-x-0 bottom-0 flex justify-center pb-8">
       <div className="w-full max-w-2xl px-4">
@@ -106,7 +106,7 @@ export const TextToSpeech = ({ onRecordingComplete }: { onRecordingComplete: (re
                 )}
               </Button>
               <Button
-                onClick={handleCancel}
+                onClick={onCancel}
                 variant="outline"
                 className="border-white text-white hover:bg-white/10"
               >
