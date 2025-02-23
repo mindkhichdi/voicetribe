@@ -98,6 +98,7 @@ const Landing = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4 relative overflow-hidden">
+      {/* Navigation */}
       <nav className="fixed top-0 w-full glass z-50">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
           <div className="flex items-center gap-8">
@@ -105,13 +106,13 @@ const Landing = () => {
             <div className="hidden md:flex gap-6">
               <button 
                 onClick={() => scrollToSection("features")}
-                className="text-foreground/80 hover:text-foreground transition-colors"
+                className="text-foreground/80 hover:text-foreground transition-colors font-medium"
               >
                 Features
               </button>
               <button 
                 onClick={() => scrollToSection("pricing")}
-                className="text-foreground/80 hover:text-foreground transition-colors"
+                className="text-foreground/80 hover:text-foreground transition-colors font-medium"
               >
                 Pricing
               </button>
@@ -122,7 +123,7 @@ const Landing = () => {
               <Button
                 onClick={() => navigate("/login")}
                 variant="ghost"
-                className="hover:bg-primary/10"
+                className="hover:bg-primary/10 font-medium"
               >
                 Sign In
               </Button>
@@ -131,14 +132,14 @@ const Landing = () => {
                 <Button
                   onClick={() => navigate("/dashboard")}
                   variant="ghost"
-                  className="hover:bg-primary/10"
+                  className="hover:bg-primary/10 font-medium"
                 >
                   Dashboard
                 </Button>
                 <Button
                   onClick={handleSignOut}
                   variant="ghost"
-                  className="hover:bg-primary/10"
+                  className="hover:bg-primary/10 font-medium"
                 >
                   Sign Out
                 </Button>
@@ -148,38 +149,44 @@ const Landing = () => {
         </div>
       </nav>
 
-      <div className="max-w-4xl w-full text-center space-y-12 mt-20">
-        <h1 className="text-6xl md:text-8xl font-bold font-display mb-8">
-          <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/70">
-            VoiceTribe
-          </span>
-        </h1>
-        
-        <p className="text-xl md:text-2xl font-mono max-w-2xl mx-auto opacity-80">
-          Record, Share, and Connect through Voice
-        </p>
+      {/* Hero Section */}
+      <div className="max-w-4xl w-full text-center space-y-12 mt-20 relative">
+        <div className="absolute inset-0 bg-gradient-to-r from-purple-light/20 via-purple/20 to-purple-vivid/20 blur-3xl -z-10" />
+        <div className="relative animate-fade-in">
+          <h1 className="text-6xl md:text-8xl font-black tracking-tight mb-8">
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary via-purple to-purple-vivid">
+              VoiceTribe
+            </span>
+          </h1>
+          
+          <p className="text-xl md:text-2xl font-light max-w-2xl mx-auto text-foreground/80">
+            Record, Share, and Connect through Voice
+          </p>
 
-        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-          {!session ? (
-            <Button
-              onClick={() => navigate("/login")}
-              className="retro-border retro-shadow transform hover:-translate-y-1 transition-transform px-8 py-6 text-lg"
-            >
-              Get Started <ArrowRight className="ml-2" />
-            </Button>
-          ) : (
-            <Button
-              onClick={() => navigate("/dashboard")}
-              className="retro-border retro-shadow transform hover:-translate-y-1 transition-transform px-8 py-6 text-lg"
-            >
-              Go to Dashboard <ArrowRight className="ml-2" />
-            </Button>
-          )}
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mt-12">
+            {!session ? (
+              <Button
+                onClick={() => navigate("/login")}
+                className="retro-border retro-shadow transform hover:-translate-y-1 transition-transform px-8 py-6 text-lg font-semibold"
+              >
+                Get Started <ArrowRight className="ml-2" />
+              </Button>
+            ) : (
+              <Button
+                onClick={() => navigate("/dashboard")}
+                className="retro-border retro-shadow transform hover:-translate-y-1 transition-transform px-8 py-6 text-lg font-semibold"
+              >
+                Go to Dashboard <ArrowRight className="ml-2" />
+              </Button>
+            )}
+          </div>
         </div>
       </div>
 
-      <section id="features" className="py-24 w-full max-w-6xl mx-auto px-4">
-        <h2 className="text-4xl md:text-5xl font-display text-center mb-16">
+      {/* Features Section */}
+      <section id="features" className="py-24 w-full max-w-6xl mx-auto px-4 relative">
+        <div className="absolute inset-0 bg-gradient-to-b from-purple-soft/20 to-transparent blur-3xl -z-10" />
+        <h2 className="text-4xl md:text-5xl font-black text-center mb-16 tracking-tight">
           Features
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -201,9 +208,11 @@ const Landing = () => {
         </div>
       </section>
 
-      <section id="pricing" className="py-24 w-full bg-purple-soft/10">
-        <div className="max-w-6xl mx-auto px-4">
-          <h2 className="text-4xl md:text-5xl font-display text-center mb-16">
+      {/* Pricing Section */}
+      <section id="pricing" className="py-24 w-full bg-purple-soft/10 relative">
+        <div className="absolute inset-0 bg-gradient-to-r from-purple-light/10 via-transparent to-purple-vivid/10 blur-3xl" />
+        <div className="max-w-6xl mx-auto px-4 relative">
+          <h2 className="text-4xl md:text-5xl font-black text-center mb-16 tracking-tight">
             Simple Pricing
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -250,8 +259,9 @@ const Landing = () => {
         </div>
       </section>
 
+      {/* FAQ Section */}
       <section className="py-24 w-full max-w-3xl mx-auto px-4">
-        <h2 className="text-4xl md:text-5xl font-display text-center mb-16">
+        <h2 className="text-4xl md:text-5xl font-black text-center mb-16 tracking-tight">
           Frequently Asked Questions
         </h2>
         <Accordion type="single" collapsible className="w-full">
@@ -289,10 +299,10 @@ const FeatureCard = ({ icon, title, description }: { icon: React.ReactNode; titl
   <div className="glass p-6 rounded-xl retro-border hover:retro-shadow transition-all duration-300">
     <div className="flex flex-col items-center gap-4">
       {icon}
-      <h3 className="font-display text-xl font-semibold text-primary">
+      <h3 className="text-xl font-bold tracking-tight text-primary">
         {title}
       </h3>
-      <p className="text-foreground/80">{description}</p>
+      <p className="text-foreground/80 font-light">{description}</p>
     </div>
   </div>
 );
