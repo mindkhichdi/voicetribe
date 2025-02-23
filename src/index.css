@@ -27,17 +27,37 @@
   }
   body {
     @apply bg-background text-foreground font-mono;
-    background: linear-gradient(
-      to bottom,
-      rgba(255, 255, 255, 1),
-      rgba(250, 232, 255, 1)
-    );
-    min-height: 100vh;
+    background-image: 
+      linear-gradient(to right, rgba(155, 135, 245, 0.05) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(155, 135, 245, 0.05) 1px, transparent 1px);
+    background-size: 20px 20px;
   }
 }
 
 @layer utilities {
   .glass {
-    @apply bg-white/50 backdrop-blur-md border border-white/20;
+    @apply bg-purple-soft/10 dark:bg-purple-dark/10 backdrop-blur-md border border-purple-light/20 dark:border-purple-light/10;
+  }
+  .retro-shadow {
+    box-shadow: 4px 4px 0 #9b87f5;
+  }
+  .retro-border {
+    @apply border-2 border-purple;
+  }
+  .waveform {
+    @apply h-12 w-full bg-gradient-to-r from-purple-light via-purple to-purple-vivid opacity-75;
+    mask-image: url("data:image/svg+xml,%3Csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0,50 Q25,45 50,50 T100,50 T150,50 T200,50' stroke='black' fill='none'/%3E%3C/svg%3E");
+    mask-size: cover;
+    mask-repeat: repeat-x;
+    animation: wave 2s linear infinite;
+  }
+}
+
+@keyframes wave {
+  0% {
+    mask-position: 0% 0;
+  }
+  100% {
+    mask-position: 200% 0;
   }
 }
