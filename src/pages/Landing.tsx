@@ -1,8 +1,7 @@
-
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useSession, useSupabaseClient } from "@supabase/auth-helpers-react";
-import { Mic, Share2, Users, ArrowRight, Check, Clock } from "lucide-react";
+import { Mic, Share2, Users, ArrowRight, Check, Clock, Music, Radio, BarChart2 } from "lucide-react";
 import { toast } from "sonner";
 import VoiceTribeLogo from "@/components/VoiceTribeLogo";
 import {
@@ -98,7 +97,6 @@ const Landing = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4 relative overflow-hidden">
-      {/* Navigation */}
       <nav className="fixed top-0 w-full glass z-50">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
           <div className="flex items-center gap-8">
@@ -149,7 +147,6 @@ const Landing = () => {
         </div>
       </nav>
 
-      {/* Hero Section */}
       <div className="max-w-4xl w-full text-center space-y-12 mt-20 relative">
         <div className="absolute inset-0 bg-gradient-to-r from-purple-light/20 via-purple/20 to-purple-vivid/20 blur-3xl -z-10" />
         <div className="relative animate-fade-in">
@@ -183,32 +180,55 @@ const Landing = () => {
         </div>
       </div>
 
-      {/* Features Section */}
-      <section id="features" className="py-24 w-full max-w-6xl mx-auto px-4 relative">
+      <section id="features" className="py-24 w-full max-w-7xl mx-auto px-4 relative">
         <div className="absolute inset-0 bg-gradient-to-b from-purple-soft/20 to-transparent blur-3xl -z-10" />
         <h2 className="text-4xl md:text-5xl font-black text-center mb-16 tracking-tight">
           Features
         </h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+          <FeatureCardLarge
+            icon="waves"
+            title="AI-Enhanced Audio"
+            description="Advanced noise reduction and audio enhancement powered by artificial intelligence."
+            gradient="from-violet-500 to-fuchsia-500"
+          />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+            <FeatureCard
+              icon={<Mic className="h-6 w-6 text-white" />}
+              title="Crystal Clear Recording"
+              description="Professional grade audio capture with automatic optimization."
+              gradient="from-violet-500 to-fuchsia-500"
+            />
+            <FeatureCard
+              icon={<Music className="h-6 w-6 text-white" />}
+              title="Background Music"
+              description="Add background tracks from our curated library."
+              gradient="from-violet-500 to-fuchsia-500"
+            />
+          </div>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
           <FeatureCard
-            icon={<Mic className="h-8 w-8 text-primary" />}
-            title="Record"
-            description="Capture your voice notes with one click. High-quality audio recording with noise reduction."
+            icon={<Share2 className="h-6 w-6 text-white" />}
+            title="Community Sharing"
+            description="Connect and share with like-minded creators."
+            gradient="from-violet-500 to-fuchsia-500"
           />
           <FeatureCard
-            icon={<Share2 className="h-8 w-8 text-primary" />}
-            title="Share"
-            description="Share recordings with your tribe. Control who can access your content."
+            icon={<Radio className="h-6 w-6 text-white" />}
+            title="Live Broadcasting"
+            description="Stream your voice content live to your audience."
+            gradient="from-violet-500 to-fuchsia-500"
           />
           <FeatureCard
-            icon={<Users className="h-8 w-8 text-primary" />}
-            title="Connect"
-            description="Build your voice community. Engage with like-minded individuals."
+            icon={<BarChart2 className="h-6 w-6 text-white" />}
+            title="Analytics"
+            description="Track engagement and grow your audience."
+            gradient="from-violet-500 to-fuchsia-500"
           />
         </div>
       </section>
 
-      {/* Pricing Section */}
       <section id="pricing" className="py-24 w-full bg-purple-soft/10 relative">
         <div className="absolute inset-0 bg-gradient-to-r from-purple-light/10 via-transparent to-purple-vivid/10 blur-3xl" />
         <div className="max-w-6xl mx-auto px-4 relative">
@@ -259,7 +279,6 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* FAQ Section */}
       <section className="py-24 w-full max-w-3xl mx-auto px-4">
         <h2 className="text-4xl md:text-5xl font-black text-center mb-16 tracking-tight">
           Frequently Asked Questions
@@ -295,14 +314,52 @@ const Landing = () => {
   );
 };
 
-const FeatureCard = ({ icon, title, description }: { icon: React.ReactNode; title: string; description: string }) => (
-  <div className="glass p-6 rounded-xl retro-border hover:retro-shadow transition-all duration-300">
-    <div className="flex flex-col items-center gap-4">
-      {icon}
-      <h3 className="text-xl font-bold tracking-tight text-primary">
+const FeatureCardLarge = ({ 
+  icon, 
+  title, 
+  description,
+  gradient 
+}: { 
+  icon: string; 
+  title: string; 
+  description: string;
+  gradient: string;
+}) => (
+  <div className={`rounded-3xl p-8 bg-gradient-to-br ${gradient} text-white h-full min-h-[300px] flex flex-col justify-between transition-transform hover:scale-[1.02] duration-300`}>
+    <div className="space-y-4">
+      <div className="text-4xl">{icon === 'waves' ? '⋮⋮⋮' : icon}</div>
+      <h3 className="text-2xl font-bold">
         {title}
       </h3>
-      <p className="text-foreground/80 font-light">{description}</p>
+      <p className="text-white/90 text-lg">
+        {description}
+      </p>
+    </div>
+  </div>
+);
+
+const FeatureCard = ({ 
+  icon, 
+  title, 
+  description,
+  gradient 
+}: { 
+  icon: React.ReactNode; 
+  title: string; 
+  description: string;
+  gradient: string;
+}) => (
+  <div className={`rounded-3xl p-6 bg-gradient-to-br ${gradient} text-white transition-transform hover:scale-[1.02] duration-300`}>
+    <div className="space-y-4">
+      <div className="p-2 rounded-full bg-white/10 w-fit">
+        {icon}
+      </div>
+      <h3 className="text-lg font-semibold">
+        {title}
+      </h3>
+      <p className="text-white/90 text-sm">
+        {description}
+      </p>
     </div>
   </div>
 );
