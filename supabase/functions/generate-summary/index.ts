@@ -1,3 +1,4 @@
+
 import "https://deno.land/x/xhr@0.1.0/mod.ts"
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 
@@ -21,6 +22,7 @@ serve(async (req) => {
 
     console.log('Generating summary for transcription:', transcription.substring(0, 100) + '...');
 
+    // Call OpenAI API for generating summaries
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -44,6 +46,10 @@ serve(async (req) => {
 
     const result = await response.json()
     console.log('OpenAI API response:', result);
+
+    if (!result.choices || !result.choices[0]) {
+      throw new Error('Invalid response from OpenAI API');
+    }
 
     const summaryText = result.choices[0].message.content
     console.log('Generated summary text:', summaryText);
