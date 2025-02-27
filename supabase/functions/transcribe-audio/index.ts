@@ -28,28 +28,33 @@ serve(async (req) => {
     }
     
     const audioBuffer = await audioResponse.arrayBuffer();
-
-    // Call OpenAI Whisper API instead of ElevenLabs
+    
+    // Create a multipart form data
     const formData = new FormData();
-    formData.append('file', new Blob([audioBuffer], { type: 'audio/webm' }), 'recording.webm');
-    formData.append('model', 'whisper-1');
-
-    const response = await fetch('https://api.openai.com/v1/audio/transcriptions', {
+    
+    // Add the audio blob to the form data
+    const audioBlob = new Blob([audioBuffer], { type: 'audio/webm' });
+    formData.append('audio', audioBlob, 'recording.webm');
+    
+    console.log('Calling ElevenLabs API with audio file');
+    
+    // Call ElevenLabs Speech-to-Text API
+    const elevenlabsResponse = await fetch('https://api.elevenlabs.io/v1/speech-to-text', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${Deno.env.get('OPENAI_API_KEY')}`,
+        'xi-api-key': Deno.env.get('ELEVEN_LABS_API_KEY') || '',
       },
       body: formData,
     });
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('OpenAI API error:', errorText);
-      throw new Error(`OpenAI API error: ${response.status}`);
+    if (!elevenlabsResponse.ok) {
+      const errorData = await elevenlabsResponse.text();
+      console.error('ElevenLabs API error:', errorData);
+      throw new Error(`ElevenLabs API error: ${elevenlabsResponse.status}`);
     }
 
-    const result = await response.json();
-    const transcriptionText = result.text;
+    const transcriptionResult = await elevenlabsResponse.json();
+    const transcriptionText = transcriptionResult.text;
     
     console.log('Transcription completed:', transcriptionText.substring(0, 100) + '...');
 
@@ -75,6 +80,8 @@ serve(async (req) => {
     });
 
     if (!updateResponse.ok) {
+      const errorData = await updateResponse.text();
+      console.error('Supabase update error:', errorData);
       throw new Error(`Failed to update recording: ${updateResponse.status}`);
     }
 

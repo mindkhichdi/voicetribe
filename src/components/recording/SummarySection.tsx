@@ -28,7 +28,7 @@ export const SummarySection = ({ recordingId, description }: SummarySectionProps
     try {
       // If we need to transcribe first
       if (needsTranscription) {
-        toast.loading('Transcribing your recording...');
+        const transcriptionToast = toast.loading('Transcribing your recording with ElevenLabs...');
         
         const { data: recordingData, error: recordingError } = await supabase
           .from('recordings')
@@ -37,6 +37,7 @@ export const SummarySection = ({ recordingId, description }: SummarySectionProps
           .single();
           
         if (recordingError) {
+          toast.dismiss(transcriptionToast);
           throw new Error('Failed to load recording data');
         }
         
@@ -48,15 +49,21 @@ export const SummarySection = ({ recordingId, description }: SummarySectionProps
           }
         });
         
+        toast.dismiss(transcriptionToast);
+        
         if (transcriptionError) {
           console.error('Transcription error:', transcriptionError);
           throw new Error('Failed to transcribe recording');
         }
         
+        if (!transcriptionData || !transcriptionData.transcription) {
+          throw new Error('No transcription returned from ElevenLabs');
+        }
+        
         // Update the local description
         setCurrentDescription(transcriptionData.transcription);
         
-        toast.success('Transcription completed');
+        toast.success('ElevenLabs transcription completed');
         
         // Now generate summary from the transcription
         await generateSummaryFromText(transcriptionData.transcription);
@@ -66,20 +73,24 @@ export const SummarySection = ({ recordingId, description }: SummarySectionProps
       }
     } catch (error) {
       console.error('Error in generating summary:', error);
-      toast.error('Failed to process recording');
+      toast.error(`Failed to process recording: ${error instanceof Error ? error.message : 'Unknown error'}`);
       setIsLoading(false);
     }
   };
 
   const generateSummaryFromText = async (text: string) => {
     try {
+      const summaryToast = toast.loading('Generating summary...');
       console.log('Calling generate-summary function with description:', text.substring(0, 100) + '...');
       
       const { data, error } = await supabase.functions.invoke('generate-summary', {
         body: { transcription: text }
       });
 
+      toast.dismiss(summaryToast);
+      
       if (error) throw error;
+      if (!data) throw new Error('No summary data returned');
 
       console.log('Received summary data:', data);
       setSummaries(data);
@@ -93,7 +104,7 @@ export const SummarySection = ({ recordingId, description }: SummarySectionProps
   };
 
   const buttonText = needsTranscription 
-    ? 'Transcribe and Generate Summary' 
+    ? 'Transcribe with ElevenLabs and Generate Summary' 
     : 'Generate Summary';
 
   return (
@@ -108,7 +119,7 @@ export const SummarySection = ({ recordingId, description }: SummarySectionProps
           {isLoading ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              {needsTranscription ? 'Transcribing and generating...' : 'Generating summary...'}
+              {needsTranscription ? 'Transcribing with ElevenLabs...' : 'Generating summary...'}
             </>
           ) : (
             buttonText
