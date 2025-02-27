@@ -32,17 +32,23 @@ serve(async (req) => {
     // Create a FormData object according to ElevenLabs API documentation
     const formData = new FormData();
     
-    // Add the audio file as a Blob with the correct content type
-    const audioBlob = new Blob([audioBuffer], { type: 'audio/webm' });
-    formData.append('file', audioBlob, 'recording.webm');
+    // Create a File object instead of a Blob
+    // ElevenLabs may be strict about requiring a proper File object
+    const fileName = audioUrl.split('/').pop() || 'recording.webm';
+    const file = new File([audioBuffer], fileName, { type: 'audio/webm' });
+    formData.append('file', file);
     
-    // Optional parameters according to ElevenLabs API documentation
-    // formData.append('model_id', 'eleven_multilingual_v2'); // Default model
-    // formData.append('language', 'en'); // Auto-detect language
+    // Add model_id explicitly to ensure compatibility
+    formData.append('model_id', 'eleven_multilingual_v2');
     
-    console.log('Calling ElevenLabs API for speech-to-text conversion');
+    console.log('Calling ElevenLabs API for speech-to-text conversion with file name:', fileName);
     
-    // Call ElevenLabs Speech-to-Text API according to the documentation
+    // Log the form data being sent for debugging
+    for (const [key, value] of formData.entries()) {
+      console.log(`Form data: ${key} = ${value instanceof File ? value.name : value}`);
+    }
+    
+    // Call ElevenLabs Speech-to-Text API
     const elevenlabsResponse = await fetch('https://api.elevenlabs.io/v1/speech-to-text', {
       method: 'POST',
       headers: {
@@ -53,14 +59,15 @@ serve(async (req) => {
     });
 
     if (!elevenlabsResponse.ok) {
-      const errorData = await elevenlabsResponse.text();
-      console.error('ElevenLabs API error:', errorData);
-      throw new Error(`ElevenLabs API error: ${elevenlabsResponse.status}`);
+      const errorText = await elevenlabsResponse.text();
+      console.error('ElevenLabs API error details:', errorText);
+      throw new Error(`ElevenLabs API error: ${elevenlabsResponse.status} - ${errorText}`);
     }
 
     const transcriptionResult = await elevenlabsResponse.json();
+    console.log('Raw ElevenLabs response:', JSON.stringify(transcriptionResult));
     
-    // According to ElevenLabs documentation, the response contains a 'text' field
+    // Check for text field in response
     if (!transcriptionResult.text) {
       console.error('Unexpected ElevenLabs response format:', transcriptionResult);
       throw new Error('Unexpected response format from ElevenLabs');
