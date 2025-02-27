@@ -18,20 +18,64 @@ export const SummarySection = ({ recordingId, description }: SummarySectionProps
   } | null>(null);
   const [activeTab, setActiveTab] = useState<'bullet' | 'detailed' | 'simple'>('simple');
   const [isLoading, setIsLoading] = useState(false);
+  const [currentDescription, setCurrentDescription] = useState(description);
   const supabase = useSupabaseClient();
 
-  const generateSummary = async () => {
-    if (!description) {
-      toast.error('No transcription available to summarize');
-      return;
-    }
+  const needsTranscription = !currentDescription || currentDescription.startsWith('Recording ');
 
+  const generateSummary = async () => {
     setIsLoading(true);
     try {
-      console.log('Calling generate-summary function with description:', description.substring(0, 100) + '...');
+      // If we need to transcribe first
+      if (needsTranscription) {
+        toast.loading('Transcribing your recording...');
+        
+        const { data: recordingData, error: recordingError } = await supabase
+          .from('recordings')
+          .select('blob_url')
+          .eq('id', recordingId)
+          .single();
+          
+        if (recordingError) {
+          throw new Error('Failed to load recording data');
+        }
+        
+        // Call the transcription function
+        const { data: transcriptionData, error: transcriptionError } = await supabase.functions.invoke('transcribe-audio', {
+          body: { 
+            audioUrl: recordingData.blob_url,
+            recordingId: recordingId
+          }
+        });
+        
+        if (transcriptionError) {
+          throw new Error('Failed to transcribe recording');
+        }
+        
+        // Update the local description
+        setCurrentDescription(transcriptionData.transcription);
+        
+        toast.success('Transcription completed');
+        
+        // Now generate summary from the transcription
+        await generateSummaryFromText(transcriptionData.transcription);
+      } else {
+        // Just generate summary from existing description
+        await generateSummaryFromText(currentDescription!);
+      }
+    } catch (error) {
+      console.error('Error in generating summary:', error);
+      toast.error('Failed to process recording');
+      setIsLoading(false);
+    }
+  };
+
+  const generateSummaryFromText = async (text: string) => {
+    try {
+      console.log('Calling generate-summary function with description:', text.substring(0, 100) + '...');
       
       const { data, error } = await supabase.functions.invoke('generate-summary', {
-        body: { transcription: description }
+        body: { transcription: text }
       });
 
       if (error) throw error;
@@ -47,9 +91,9 @@ export const SummarySection = ({ recordingId, description }: SummarySectionProps
     }
   };
 
-  if (!description) {
-    return null;
-  }
+  const buttonText = needsTranscription 
+    ? 'Transcribe and Generate Summary' 
+    : 'Generate Summary';
 
   return (
     <div className="mt-4 space-y-4">
@@ -63,10 +107,10 @@ export const SummarySection = ({ recordingId, description }: SummarySectionProps
           {isLoading ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Generating summary...
+              {needsTranscription ? 'Transcribing and generating...' : 'Generating summary...'}
             </>
           ) : (
-            'Generate Summary'
+            buttonText
           )}
         </Button>
       ) : (

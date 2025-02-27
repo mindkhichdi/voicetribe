@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -10,6 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { FileText, Mic, PenLine, Users } from 'lucide-react';
 import { CardNotes } from './CardNotes';
 import { SummarySection } from './SummarySection';
+import { useSupabaseClient } from '@supabase/auth-helpers-react';
 
 interface RecordingModalProps {
   isOpen: boolean;
@@ -40,6 +41,28 @@ export const RecordingModal = ({
   onCancelEditNotes,
   onStartEditNotes,
 }: RecordingModalProps) => {
+  const supabase = useSupabaseClient();
+  const [currentDescription, setCurrentDescription] = useState(recording.description);
+  
+  // Fetch latest recording data when modal opens
+  useEffect(() => {
+    if (isOpen && recording.id) {
+      const fetchRecording = async () => {
+        const { data, error } = await supabase
+          .from('recordings')
+          .select('description')
+          .eq('id', recording.id)
+          .single();
+          
+        if (!error && data) {
+          setCurrentDescription(data.description);
+        }
+      };
+      
+      fetchRecording();
+    }
+  }, [isOpen, recording.id, supabase]);
+
   const formattedDate = new Date(recording.created_at).toLocaleDateString('en-US', {
     month: 'short',
     day: 'numeric',
@@ -49,7 +72,7 @@ export const RecordingModal = ({
   });
 
   // Default to transcript tab if there's a transcription
-  const hasTranscription = recording.description && recording.description !== `Recording` && !recording.description.startsWith('Recording ');
+  const hasTranscription = currentDescription && currentDescription !== `Recording` && !currentDescription.startsWith('Recording ');
   const defaultTab = hasTranscription ? 'transcript' : 'notes';
 
   return (
@@ -99,21 +122,21 @@ export const RecordingModal = ({
 
           <TabsContent value="transcript" className="mt-4">
             <div className="space-y-4">
-              {recording.description && !recording.description.startsWith('Recording ') ? (
+              {currentDescription && !currentDescription.startsWith('Recording ') ? (
                 <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
                   <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Transcription</h3>
                   <p className="text-sm text-gray-600 dark:text-gray-300 whitespace-pre-wrap">
-                    {recording.description}
+                    {currentDescription}
                   </p>
                 </div>
               ) : (
                 <p className="text-sm text-gray-600 dark:text-gray-300">
-                  No transcription available for this recording.
+                  No transcription available for this recording. Click "Transcribe and Generate Summary" below to transcribe this recording.
                 </p>
               )}
               <SummarySection
                 recordingId={recording.id}
-                description={recording.description}
+                description={currentDescription}
               />
             </div>
           </TabsContent>

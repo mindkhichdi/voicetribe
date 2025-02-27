@@ -128,32 +128,6 @@ export const VoiceRecorder = ({ onRecordingComplete }: VoiceRecorderProps) => {
 
       console.log('Recording saved successfully:', recordingData);
       
-      // Start transcription process
-      toast.loading('Transcribing your recording...');
-      
-      try {
-        const { data: transcriptionData, error: transcriptionError } = await supabase.functions.invoke('transcribe-audio', {
-          body: { 
-            audioUrl: publicUrl,
-            recordingId: recordingData.id
-          }
-        });
-        
-        if (transcriptionError) {
-          console.error('Transcription error:', transcriptionError);
-          toast.error('Failed to transcribe recording, but it was saved');
-        } else {
-          console.log('Transcription completed:', transcriptionData);
-          toast.success('Recording transcribed and saved');
-          
-          // Update the recording data with the transcription
-          recordingData.description = transcriptionData.transcription;
-        }
-      } catch (transcriptionError) {
-        console.error('Error invoking transcription function:', transcriptionError);
-        toast.error('Failed to transcribe recording, but it was saved');
-      }
-      
       onRecordingComplete(recordingData);
       setAudioBlob(null);
     } catch (error) {
