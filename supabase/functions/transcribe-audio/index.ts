@@ -29,19 +29,24 @@ serve(async (req) => {
     
     const audioBuffer = await audioResponse.arrayBuffer();
     
-    // Create a multipart form data
+    // Create a FormData object according to ElevenLabs API documentation
     const formData = new FormData();
     
-    // Add the audio blob to the form data
+    // Add the audio file as a Blob with the correct content type
     const audioBlob = new Blob([audioBuffer], { type: 'audio/webm' });
-    formData.append('audio', audioBlob, 'recording.webm');
+    formData.append('file', audioBlob, 'recording.webm');
     
-    console.log('Calling ElevenLabs API with audio file');
+    // Optional parameters according to ElevenLabs API documentation
+    // formData.append('model_id', 'eleven_multilingual_v2'); // Default model
+    // formData.append('language', 'en'); // Auto-detect language
     
-    // Call ElevenLabs Speech-to-Text API
+    console.log('Calling ElevenLabs API for speech-to-text conversion');
+    
+    // Call ElevenLabs Speech-to-Text API according to the documentation
     const elevenlabsResponse = await fetch('https://api.elevenlabs.io/v1/speech-to-text', {
       method: 'POST',
       headers: {
+        'Accept': 'application/json',
         'xi-api-key': Deno.env.get('ELEVEN_LABS_API_KEY') || '',
       },
       body: formData,
@@ -54,8 +59,14 @@ serve(async (req) => {
     }
 
     const transcriptionResult = await elevenlabsResponse.json();
-    const transcriptionText = transcriptionResult.text;
     
+    // According to ElevenLabs documentation, the response contains a 'text' field
+    if (!transcriptionResult.text) {
+      console.error('Unexpected ElevenLabs response format:', transcriptionResult);
+      throw new Error('Unexpected response format from ElevenLabs');
+    }
+    
+    const transcriptionText = transcriptionResult.text;
     console.log('Transcription completed:', transcriptionText.substring(0, 100) + '...');
 
     // Update the recording in the database with the transcription
