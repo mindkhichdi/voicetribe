@@ -49,6 +49,7 @@ export const SummarySection = ({ recordingId, description }: SummarySectionProps
         });
         
         if (transcriptionError) {
+          console.error('Transcription error:', transcriptionError);
           throw new Error('Failed to transcribe recording');
         }
         

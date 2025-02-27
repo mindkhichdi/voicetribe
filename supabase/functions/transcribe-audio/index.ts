@@ -28,29 +28,28 @@ serve(async (req) => {
     }
     
     const audioBuffer = await audioResponse.arrayBuffer();
-    const audioBlob = new Blob([audioBuffer], { type: 'audio/webm' });
 
-    // Prepare form data for ElevenLabs API
+    // Call OpenAI Whisper API instead of ElevenLabs
     const formData = new FormData();
-    formData.append('audio', audioBlob, 'recording.webm');
+    formData.append('file', new Blob([audioBuffer], { type: 'audio/webm' }), 'recording.webm');
+    formData.append('model', 'whisper-1');
 
-    // Call ElevenLabs Speech-to-Text API
-    const elevenlabsResponse = await fetch('https://api.elevenlabs.io/v1/speech-to-text', {
+    const response = await fetch('https://api.openai.com/v1/audio/transcriptions', {
       method: 'POST',
       headers: {
-        'xi-api-key': Deno.env.get('ELEVEN_LABS_API_KEY') || '',
+        'Authorization': `Bearer ${Deno.env.get('OPENAI_API_KEY')}`,
       },
       body: formData,
     });
 
-    if (!elevenlabsResponse.ok) {
-      const errorData = await elevenlabsResponse.text();
-      console.error('ElevenLabs API error:', errorData);
-      throw new Error(`ElevenLabs API error: ${elevenlabsResponse.status}`);
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('OpenAI API error:', errorText);
+      throw new Error(`OpenAI API error: ${response.status}`);
     }
 
-    const transcriptionResult = await elevenlabsResponse.json();
-    const transcriptionText = transcriptionResult.text;
+    const result = await response.json();
+    const transcriptionText = result.text;
     
     console.log('Transcription completed:', transcriptionText.substring(0, 100) + '...');
 
