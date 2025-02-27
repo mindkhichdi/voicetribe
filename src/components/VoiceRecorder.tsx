@@ -1,3 +1,4 @@
+
 import React, { useState, useRef } from 'react';
 import { useSupabaseClient, useUser } from '@supabase/auth-helpers-react';
 import { toast } from 'sonner';
@@ -126,9 +127,35 @@ export const VoiceRecorder = ({ onRecordingComplete }: VoiceRecorderProps) => {
       }
 
       console.log('Recording saved successfully:', recordingData);
+      
+      // Start transcription process
+      toast.loading('Transcribing your recording...');
+      
+      try {
+        const { data: transcriptionData, error: transcriptionError } = await supabase.functions.invoke('transcribe-audio', {
+          body: { 
+            audioUrl: publicUrl,
+            recordingId: recordingData.id
+          }
+        });
+        
+        if (transcriptionError) {
+          console.error('Transcription error:', transcriptionError);
+          toast.error('Failed to transcribe recording, but it was saved');
+        } else {
+          console.log('Transcription completed:', transcriptionData);
+          toast.success('Recording transcribed and saved');
+          
+          // Update the recording data with the transcription
+          recordingData.description = transcriptionData.transcription;
+        }
+      } catch (transcriptionError) {
+        console.error('Error invoking transcription function:', transcriptionError);
+        toast.error('Failed to transcribe recording, but it was saved');
+      }
+      
       onRecordingComplete(recordingData);
       setAudioBlob(null);
-      toast.success('Recording saved successfully');
     } catch (error) {
       console.error('Error processing recording:', error);
       toast.error('Failed to process recording');

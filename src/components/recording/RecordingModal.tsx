@@ -1,3 +1,4 @@
+
 import React from 'react';
 import {
   Dialog,
@@ -47,6 +48,10 @@ export const RecordingModal = ({
     minute: '2-digit',
   });
 
+  // Default to transcript tab if there's a transcription
+  const hasTranscription = recording.description && recording.description !== `Recording` && !recording.description.startsWith('Recording ');
+  const defaultTab = hasTranscription ? 'transcript' : 'notes';
+
   return (
     <Dialog open={isOpen} onOpenChange={() => onClose()}>
       <DialogContent className="max-w-3xl">
@@ -59,7 +64,7 @@ export const RecordingModal = ({
           </DialogTitle>
         </DialogHeader>
 
-        <Tabs defaultValue="notes" className="mt-4">
+        <Tabs defaultValue={defaultTab} className="mt-4">
           <TabsList className="grid w-full grid-cols-4 bg-purple-soft/20">
             <TabsTrigger value="notes" className="flex items-center gap-2">
               <FileText className="h-4 w-4" />
@@ -94,9 +99,18 @@ export const RecordingModal = ({
 
           <TabsContent value="transcript" className="mt-4">
             <div className="space-y-4">
-              <p className="text-sm text-gray-600 dark:text-gray-300">
-                {recording.description || 'No transcription available'}
-              </p>
+              {recording.description && !recording.description.startsWith('Recording ') ? (
+                <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
+                  <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Transcription</h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-300 whitespace-pre-wrap">
+                    {recording.description}
+                  </p>
+                </div>
+              ) : (
+                <p className="text-sm text-gray-600 dark:text-gray-300">
+                  No transcription available for this recording.
+                </p>
+              )}
               <SummarySection
                 recordingId={recording.id}
                 description={recording.description}

@@ -1,3 +1,8 @@
+
 project_id = "ddoxkwmwbxcagnrmwygo"
 [functions.send-invite]
+verify_jwt = false
+[functions.generate-summary]
+verify_jwt = false
+[functions.transcribe-audio]
 verify_jwt = false
