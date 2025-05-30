@@ -1,3 +1,4 @@
+
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useSession, useSupabaseClient } from "@supabase/auth-helpers-react";
@@ -96,50 +97,50 @@ const Landing = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 relative overflow-hidden">
+    <div className="min-h-screen bg-white relative overflow-hidden">
       {/* Animated Background Elements */}
       <div className="absolute inset-0 overflow-hidden">
         {/* Animated Sound Waves */}
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 opacity-20">
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 opacity-10">
           <div className="w-full h-full bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full animate-pulse"></div>
         </div>
-        <div className="absolute top-3/4 right-1/4 w-80 h-80 opacity-15">
+        <div className="absolute top-3/4 right-1/4 w-80 h-80 opacity-10">
           <div className="w-full h-full bg-gradient-to-r from-pink-400 to-red-500 rounded-full animate-pulse delay-1000"></div>
         </div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] opacity-10">
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] opacity-5">
           <div className="w-full h-full bg-gradient-to-r from-green-400 to-blue-500 rounded-full animate-pulse delay-500"></div>
         </div>
         
         {/* Floating Audio Icons */}
-        <div className="absolute top-20 left-20 text-cyan-400 opacity-30 animate-float">
+        <div className="absolute top-20 left-20 text-cyan-400 opacity-20 animate-float">
           <AudioWaveform size={48} />
         </div>
-        <div className="absolute top-40 right-32 text-pink-400 opacity-30 animate-float delay-1000">
+        <div className="absolute top-40 right-32 text-pink-400 opacity-20 animate-float delay-1000">
           <Music size={40} />
         </div>
-        <div className="absolute bottom-32 left-32 text-green-400 opacity-30 animate-float delay-2000">
+        <div className="absolute bottom-32 left-32 text-green-400 opacity-20 animate-float delay-2000">
           <Radio size={44} />
         </div>
-        <div className="absolute bottom-20 right-20 text-yellow-400 opacity-30 animate-float delay-3000">
+        <div className="absolute bottom-20 right-20 text-yellow-400 opacity-20 animate-float delay-3000">
           <Mic size={36} />
         </div>
       </div>
 
       {/* Navigation */}
-      <nav className="fixed top-0 w-full bg-black/20 backdrop-blur-md z-50 border-b border-white/10">
+      <nav className="fixed top-0 w-full bg-white/90 backdrop-blur-md z-50 border-b border-gray-200 shadow-sm">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
           <div className="flex items-center gap-8">
             <VoiceTribeLogo />
             <div className="hidden md:flex gap-6">
               <button 
                 onClick={() => scrollToSection("features")}
-                className="text-white/80 hover:text-white transition-colors font-medium"
+                className="text-gray-700 hover:text-gray-900 transition-colors font-medium"
               >
                 Features
               </button>
               <button 
                 onClick={() => scrollToSection("pricing")}
-                className="text-white/80 hover:text-white transition-colors font-medium"
+                className="text-gray-700 hover:text-gray-900 transition-colors font-medium"
               >
                 Pricing
               </button>
@@ -150,7 +151,7 @@ const Landing = () => {
               <Button
                 onClick={() => navigate("/login")}
                 variant="ghost"
-                className="hover:bg-white/10 font-medium text-white border-white/20"
+                className="hover:bg-gray-100 font-medium text-gray-700 border-gray-300"
               >
                 Sign In
               </Button>
@@ -159,14 +160,14 @@ const Landing = () => {
                 <Button
                   onClick={() => navigate("/dashboard")}
                   variant="ghost"
-                  className="hover:bg-white/10 font-medium text-white"
+                  className="hover:bg-gray-100 font-medium text-gray-700"
                 >
                   Dashboard
                 </Button>
                 <Button
                   onClick={handleSignOut}
                   variant="ghost"
-                  className="hover:bg-white/10 font-medium text-white"
+                  className="hover:bg-gray-100 font-medium text-gray-700"
                 >
                   Sign Out
                 </Button>
@@ -180,12 +181,12 @@ const Landing = () => {
       <div className="max-w-4xl w-full text-center space-y-12 mt-20 relative z-10 mx-auto px-4">
         <div className="relative animate-fade-in">
           <h1 className="text-6xl md:text-8xl font-black tracking-tight mb-8">
-            <span className="bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400">
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-cyan-500 via-purple-600 to-pink-500">
               VoiceTribe
             </span>
           </h1>
           
-          <p className="text-xl md:text-2xl font-light max-w-2xl mx-auto text-white/80 mb-8">
+          <p className="text-xl md:text-2xl font-light max-w-2xl mx-auto text-gray-600 mb-8">
             Record, Share, and Connect through Voice
           </p>
 
@@ -211,7 +212,7 @@ const Landing = () => {
 
       {/* Features Section */}
       <section id="features" className="py-24 w-full max-w-6xl mx-auto px-4 relative z-10">
-        <h2 className="text-4xl md:text-5xl font-black text-center mb-16 tracking-tight text-white">
+        <h2 className="text-4xl md:text-5xl font-black text-center mb-16 tracking-tight text-gray-900">
           Features
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -237,9 +238,9 @@ const Landing = () => {
       </section>
 
       {/* Pricing Section */}
-      <section id="pricing" className="py-24 w-full bg-black/20 backdrop-blur-sm relative z-10">
+      <section id="pricing" className="py-24 w-full bg-gray-50 relative z-10">
         <div className="max-w-6xl mx-auto px-4 relative">
-          <h2 className="text-4xl md:text-5xl font-black text-center mb-16 tracking-tight text-white">
+          <h2 className="text-4xl md:text-5xl font-black text-center mb-16 tracking-tight text-gray-900">
             Simple Pricing
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -288,31 +289,31 @@ const Landing = () => {
 
       {/* FAQ Section */}
       <section className="py-24 w-full max-w-3xl mx-auto px-4 relative z-10">
-        <h2 className="text-4xl md:text-5xl font-black text-center mb-16 tracking-tight text-white">
+        <h2 className="text-4xl md:text-5xl font-black text-center mb-16 tracking-tight text-gray-900">
           Frequently Asked Questions
         </h2>
         <Accordion type="single" collapsible className="w-full">
-          <AccordionItem value="item-1" className="border-white/20">
-            <AccordionTrigger className="text-white hover:text-cyan-400">How does VoiceTribe work?</AccordionTrigger>
-            <AccordionContent className="text-white/80">
+          <AccordionItem value="item-1" className="border-gray-200">
+            <AccordionTrigger className="text-gray-900 hover:text-cyan-600">How does VoiceTribe work?</AccordionTrigger>
+            <AccordionContent className="text-gray-600">
               VoiceTribe allows you to record, organize, and share voice recordings with your community. Simply click record, speak your mind, and share with your tribe.
             </AccordionContent>
           </AccordionItem>
-          <AccordionItem value="item-2" className="border-white/20">
-            <AccordionTrigger className="text-white hover:text-cyan-400">What audio formats are supported?</AccordionTrigger>
-            <AccordionContent className="text-white/80">
+          <AccordionItem value="item-2" className="border-gray-200">
+            <AccordionTrigger className="text-gray-900 hover:text-cyan-600">What audio formats are supported?</AccordionTrigger>
+            <AccordionContent className="text-gray-600">
               We support all major audio formats including MP3, WAV, and AAC. Recordings are automatically optimized for quality and file size.
             </AccordionContent>
           </AccordionItem>
-          <AccordionItem value="item-3" className="border-white/20">
-            <AccordionTrigger className="text-white hover:text-cyan-400">Is my data secure?</AccordionTrigger>
-            <AccordionContent className="text-white/80">
+          <AccordionItem value="item-3" className="border-gray-200">
+            <AccordionTrigger className="text-gray-900 hover:text-cyan-600">Is my data secure?</AccordionTrigger>
+            <AccordionContent className="text-gray-600">
               Yes! We use industry-standard encryption to protect your recordings and personal information. You have full control over who can access your content.
             </AccordionContent>
           </AccordionItem>
-          <AccordionItem value="item-4" className="border-white/20">
-            <AccordionTrigger className="text-white hover:text-cyan-400">Can I upgrade or downgrade my plan?</AccordionTrigger>
-            <AccordionContent className="text-white/80">
+          <AccordionItem value="item-4" className="border-gray-200">
+            <AccordionTrigger className="text-gray-900 hover:text-cyan-600">Can I upgrade or downgrade my plan?</AccordionTrigger>
+            <AccordionContent className="text-gray-600">
               Yes, you can change your plan at any time. Changes take effect at the start of your next billing cycle.
             </AccordionContent>
           </AccordionItem>
