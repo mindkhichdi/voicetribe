@@ -2,7 +2,7 @@
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useSession, useSupabaseClient } from "@supabase/auth-helpers-react";
-import { Mic, Share2, Users, ArrowRight, Check, Clock } from "lucide-react";
+import { Mic, Share2, Users, ArrowRight, Check, Clock, Waveform, Music, Radio } from "lucide-react";
 import { toast } from "sonner";
 import VoiceTribeLogo from "@/components/VoiceTribeLogo";
 import {
@@ -97,22 +97,50 @@ const Landing = () => {
   );
 
   return (
-    <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 relative overflow-hidden">
+      {/* Animated Background Elements */}
+      <div className="absolute inset-0 overflow-hidden">
+        {/* Animated Sound Waves */}
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 opacity-20">
+          <div className="w-full h-full bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full animate-pulse"></div>
+        </div>
+        <div className="absolute top-3/4 right-1/4 w-80 h-80 opacity-15">
+          <div className="w-full h-full bg-gradient-to-r from-pink-400 to-red-500 rounded-full animate-pulse delay-1000"></div>
+        </div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] opacity-10">
+          <div className="w-full h-full bg-gradient-to-r from-green-400 to-blue-500 rounded-full animate-pulse delay-500"></div>
+        </div>
+        
+        {/* Floating Audio Icons */}
+        <div className="absolute top-20 left-20 text-cyan-400 opacity-30 animate-float">
+          <Waveform size={48} />
+        </div>
+        <div className="absolute top-40 right-32 text-pink-400 opacity-30 animate-float delay-1000">
+          <Music size={40} />
+        </div>
+        <div className="absolute bottom-32 left-32 text-green-400 opacity-30 animate-float delay-2000">
+          <Radio size={44} />
+        </div>
+        <div className="absolute bottom-20 right-20 text-yellow-400 opacity-30 animate-float delay-3000">
+          <Mic size={36} />
+        </div>
+      </div>
+
       {/* Navigation */}
-      <nav className="fixed top-0 w-full glass z-50">
+      <nav className="fixed top-0 w-full bg-black/20 backdrop-blur-md z-50 border-b border-white/10">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
           <div className="flex items-center gap-8">
             <VoiceTribeLogo />
             <div className="hidden md:flex gap-6">
               <button 
                 onClick={() => scrollToSection("features")}
-                className="text-foreground/80 hover:text-foreground transition-colors font-medium"
+                className="text-white/80 hover:text-white transition-colors font-medium"
               >
                 Features
               </button>
               <button 
                 onClick={() => scrollToSection("pricing")}
-                className="text-foreground/80 hover:text-foreground transition-colors font-medium"
+                className="text-white/80 hover:text-white transition-colors font-medium"
               >
                 Pricing
               </button>
@@ -123,7 +151,7 @@ const Landing = () => {
               <Button
                 onClick={() => navigate("/login")}
                 variant="ghost"
-                className="hover:bg-primary/10 font-medium"
+                className="hover:bg-white/10 font-medium text-white border-white/20"
               >
                 Sign In
               </Button>
@@ -132,14 +160,14 @@ const Landing = () => {
                 <Button
                   onClick={() => navigate("/dashboard")}
                   variant="ghost"
-                  className="hover:bg-primary/10 font-medium"
+                  className="hover:bg-white/10 font-medium text-white"
                 >
                   Dashboard
                 </Button>
                 <Button
                   onClick={handleSignOut}
                   variant="ghost"
-                  className="hover:bg-primary/10 font-medium"
+                  className="hover:bg-white/10 font-medium text-white"
                 >
                   Sign Out
                 </Button>
@@ -150,16 +178,15 @@ const Landing = () => {
       </nav>
 
       {/* Hero Section */}
-      <div className="max-w-4xl w-full text-center space-y-12 mt-20 relative">
-        <div className="absolute inset-0 bg-gradient-to-r from-purple-light/20 via-purple/20 to-purple-vivid/20 blur-3xl -z-10" />
+      <div className="max-w-4xl w-full text-center space-y-12 mt-20 relative z-10 mx-auto px-4">
         <div className="relative animate-fade-in">
           <h1 className="text-6xl md:text-8xl font-black tracking-tight mb-8">
-            <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary via-purple to-purple-vivid">
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400">
               VoiceTribe
             </span>
           </h1>
           
-          <p className="text-xl md:text-2xl font-light max-w-2xl mx-auto text-foreground/80">
+          <p className="text-xl md:text-2xl font-light max-w-2xl mx-auto text-white/80 mb-8">
             Record, Share, and Connect through Voice
           </p>
 
@@ -167,14 +194,14 @@ const Landing = () => {
             {!session ? (
               <Button
                 onClick={() => navigate("/login")}
-                className="retro-border retro-shadow transform hover:-translate-y-1 transition-transform px-8 py-6 text-lg font-semibold"
+                className="bg-gradient-to-r from-cyan-500 to-purple-600 hover:from-cyan-600 hover:to-purple-700 transform hover:-translate-y-1 transition-all px-8 py-6 text-lg font-semibold border-0 shadow-lg hover:shadow-xl"
               >
                 Get Started <ArrowRight className="ml-2" />
               </Button>
             ) : (
               <Button
                 onClick={() => navigate("/dashboard")}
-                className="retro-border retro-shadow transform hover:-translate-y-1 transition-transform px-8 py-6 text-lg font-semibold"
+                className="bg-gradient-to-r from-cyan-500 to-purple-600 hover:from-cyan-600 hover:to-purple-700 transform hover:-translate-y-1 transition-all px-8 py-6 text-lg font-semibold border-0 shadow-lg hover:shadow-xl"
               >
                 Go to Dashboard <ArrowRight className="ml-2" />
               </Button>
@@ -184,35 +211,36 @@ const Landing = () => {
       </div>
 
       {/* Features Section */}
-      <section id="features" className="py-24 w-full max-w-6xl mx-auto px-4 relative">
-        <div className="absolute inset-0 bg-gradient-to-b from-purple-soft/20 to-transparent blur-3xl -z-10" />
-        <h2 className="text-4xl md:text-5xl font-black text-center mb-16 tracking-tight">
+      <section id="features" className="py-24 w-full max-w-6xl mx-auto px-4 relative z-10">
+        <h2 className="text-4xl md:text-5xl font-black text-center mb-16 tracking-tight text-white">
           Features
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <FeatureCard
-            icon={<Mic className="h-8 w-8 text-primary" />}
+            icon={<Mic className="h-8 w-8 text-white" />}
             title="Record"
             description="Capture your voice notes with one click. High-quality audio recording with noise reduction."
+            gradient="from-cyan-500 to-blue-600"
           />
           <FeatureCard
-            icon={<Share2 className="h-8 w-8 text-primary" />}
+            icon={<Share2 className="h-8 w-8 text-white" />}
             title="Share"
             description="Share recordings with your tribe. Control who can access your content."
+            gradient="from-pink-500 to-rose-600"
           />
           <FeatureCard
-            icon={<Users className="h-8 w-8 text-primary" />}
+            icon={<Users className="h-8 w-8 text-white" />}
             title="Connect"
             description="Build your voice community. Engage with like-minded individuals."
+            gradient="from-green-500 to-emerald-600"
           />
         </div>
       </section>
 
       {/* Pricing Section */}
-      <section id="pricing" className="py-24 w-full bg-purple-soft/10 relative">
-        <div className="absolute inset-0 bg-gradient-to-r from-purple-light/10 via-transparent to-purple-vivid/10 blur-3xl" />
+      <section id="pricing" className="py-24 w-full bg-black/20 backdrop-blur-sm relative z-10">
         <div className="max-w-6xl mx-auto px-4 relative">
-          <h2 className="text-4xl md:text-5xl font-black text-center mb-16 tracking-tight">
+          <h2 className="text-4xl md:text-5xl font-black text-center mb-16 tracking-tight text-white">
             Simple Pricing
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -260,32 +288,32 @@ const Landing = () => {
       </section>
 
       {/* FAQ Section */}
-      <section className="py-24 w-full max-w-3xl mx-auto px-4">
-        <h2 className="text-4xl md:text-5xl font-black text-center mb-16 tracking-tight">
+      <section className="py-24 w-full max-w-3xl mx-auto px-4 relative z-10">
+        <h2 className="text-4xl md:text-5xl font-black text-center mb-16 tracking-tight text-white">
           Frequently Asked Questions
         </h2>
         <Accordion type="single" collapsible className="w-full">
-          <AccordionItem value="item-1">
-            <AccordionTrigger>How does VoiceTribe work?</AccordionTrigger>
-            <AccordionContent>
+          <AccordionItem value="item-1" className="border-white/20">
+            <AccordionTrigger className="text-white hover:text-cyan-400">How does VoiceTribe work?</AccordionTrigger>
+            <AccordionContent className="text-white/80">
               VoiceTribe allows you to record, organize, and share voice recordings with your community. Simply click record, speak your mind, and share with your tribe.
             </AccordionContent>
           </AccordionItem>
-          <AccordionItem value="item-2">
-            <AccordionTrigger>What audio formats are supported?</AccordionTrigger>
-            <AccordionContent>
+          <AccordionItem value="item-2" className="border-white/20">
+            <AccordionTrigger className="text-white hover:text-cyan-400">What audio formats are supported?</AccordionTrigger>
+            <AccordionContent className="text-white/80">
               We support all major audio formats including MP3, WAV, and AAC. Recordings are automatically optimized for quality and file size.
             </AccordionContent>
           </AccordionItem>
-          <AccordionItem value="item-3">
-            <AccordionTrigger>Is my data secure?</AccordionTrigger>
-            <AccordionContent>
+          <AccordionItem value="item-3" className="border-white/20">
+            <AccordionTrigger className="text-white hover:text-cyan-400">Is my data secure?</AccordionTrigger>
+            <AccordionContent className="text-white/80">
               Yes! We use industry-standard encryption to protect your recordings and personal information. You have full control over who can access your content.
             </AccordionContent>
           </AccordionItem>
-          <AccordionItem value="item-4">
-            <AccordionTrigger>Can I upgrade or downgrade my plan?</AccordionTrigger>
-            <AccordionContent>
+          <AccordionItem value="item-4" className="border-white/20">
+            <AccordionTrigger className="text-white hover:text-cyan-400">Can I upgrade or downgrade my plan?</AccordionTrigger>
+            <AccordionContent className="text-white/80">
               Yes, you can change your plan at any time. Changes take effect at the start of your next billing cycle.
             </AccordionContent>
           </AccordionItem>
@@ -295,14 +323,26 @@ const Landing = () => {
   );
 };
 
-const FeatureCard = ({ icon, title, description }: { icon: React.ReactNode; title: string; description: string }) => (
-  <div className="glass p-6 rounded-xl retro-border hover:retro-shadow transition-all duration-300">
+const FeatureCard = ({ 
+  icon, 
+  title, 
+  description, 
+  gradient 
+}: { 
+  icon: React.ReactNode; 
+  title: string; 
+  description: string; 
+  gradient: string;
+}) => (
+  <div className={`bg-gradient-to-br ${gradient} p-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 border border-white/20`}>
     <div className="flex flex-col items-center gap-4">
-      {icon}
-      <h3 className="text-xl font-bold tracking-tight text-primary">
+      <div className="p-3 bg-white/20 rounded-full backdrop-blur-sm">
+        {icon}
+      </div>
+      <h3 className="text-xl font-bold tracking-tight text-white">
         {title}
       </h3>
-      <p className="text-foreground/80 font-light">{description}</p>
+      <p className="text-white/90 font-light text-center">{description}</p>
     </div>
   </div>
 );
