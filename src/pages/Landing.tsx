@@ -1,8 +1,7 @@
-
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useSession, useSupabaseClient } from "@supabase/auth-helpers-react";
-import { Mic, Share2, Users, ArrowRight, Check, Clock, Waveform, Music, Radio } from "lucide-react";
+import { Mic, Share2, Users, ArrowRight, Check, Clock, AudioWaveform, Music, Radio } from "lucide-react";
 import { toast } from "sonner";
 import VoiceTribeLogo from "@/components/VoiceTribeLogo";
 import {
@@ -113,7 +112,7 @@ const Landing = () => {
         
         {/* Floating Audio Icons */}
         <div className="absolute top-20 left-20 text-cyan-400 opacity-30 animate-float">
-          <Waveform size={48} />
+          <AudioWaveform size={48} />
         </div>
         <div className="absolute top-40 right-32 text-pink-400 opacity-30 animate-float delay-1000">
           <Music size={40} />
