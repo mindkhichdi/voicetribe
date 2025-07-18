@@ -55,11 +55,11 @@ export default {
           foreground: "hsl(var(--destructive-foreground))",
         },
         purple: {
-          light: "hsl(213, 80%, 75%)",
-          DEFAULT: "hsl(213, 100%, 18%)",
-          dark: "hsl(213, 50%, 10%)",
-          soft: "hsl(213, 40%, 90%)",
-          vivid: "hsl(213, 100%, 25%)",
+          light: "hsl(280, 85%, 80%)",
+          DEFAULT: "hsl(270, 100%, 60%)",
+          dark: "hsl(270, 50%, 15%)",
+          soft: "hsl(270, 40%, 92%)",
+          vivid: "hsl(280, 100%, 65%)",
         },
       },
       keyframes: {
